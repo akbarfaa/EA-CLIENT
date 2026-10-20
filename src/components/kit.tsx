@@ -10,8 +10,10 @@ export const pct = (v: number | null | undefined, d = 1) => (v == null ? "—" :
 export const signCls = (v: number | null | undefined) => (v == null ? "text-muted-foreground" : v > 0 ? "text-profit" : v < 0 ? "text-loss" : "");
 export const ago = (iso?: string) => {
   if (!iso) return "never";
-  const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return `${s}s ago`;
+  const utcIso = iso.endsWith("Z") || iso.includes("+") ? iso : `${iso}Z`;
+  const s = Math.round((Date.now() - new Date(utcIso).getTime()) / 1000);
+  if (s < 5) return "just now";
+  if (s < 60) return `${Math.max(0, s)}s ago`;
   if (s < 3600) return `${Math.round(s / 60)}m ago`;
   if (s < 86400) return `${Math.round(s / 3600)}h ago`;
   return `${Math.round(s / 86400)}d ago`;

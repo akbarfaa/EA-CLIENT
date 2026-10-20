@@ -18,7 +18,7 @@ function Overview() {
   const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity");
   const hr = useApi<ReturnType<typeof demo.byHour>>("/accounts/default/performance?groupBy=hour", "byHour");
   const s = sq.data;
-  const stale = s && Date.now() - new Date(s.lastTelemetry).getTime() > 60_000;
+  const stale = s && Date.now() - new Date(s.lastTelemetry.endsWith("Z") || s.lastTelemetry.includes("+") ? s.lastTelemetry : `${s.lastTelemetry}Z`).getTime() > 600_000;
 
   return (
     <div className="space-y-4">
