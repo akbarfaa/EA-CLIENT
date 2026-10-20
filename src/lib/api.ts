@@ -9,7 +9,8 @@ export type Settings = { apiBase: string; token: string; demo: boolean; tz: stri
 const DEFAULT_API_BASE = "https://43-163-101-252.sslip.io";
 
 export function getSettings(): Settings {
-  const envBase = (import.meta.env.VITE_API_BASE_URL as string | undefined) || DEFAULT_API_BASE;
+  const env = import.meta.env as Record<string, string | undefined>;
+  const envBase = env["VITE_API_BASE_URL"] || DEFAULT_API_BASE;
   const def: Settings = { apiBase: envBase, token: "", demo: false, tz: "Asia/Jakarta" };
   if (typeof window === "undefined") return def;
   try {
@@ -52,7 +53,7 @@ export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: 
   return useQuery<T>({
     queryKey: ["api", path, getSettings().demo],
     queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path)),
-    refetchInterval: refetchMs,
+    ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
     staleTime: 10_000,
   });
