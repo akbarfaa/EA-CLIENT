@@ -6,12 +6,18 @@ import { demo } from "./demo";
 const KEY = "xau.settings";
 export type Settings = { apiBase: string; token: string; demo: boolean; tz: string };
 
+const DEFAULT_API_BASE = "https://43-163-101-252.sslip.io";
+
 export function getSettings(): Settings {
-  const envBase = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
-  const def: Settings = { apiBase: envBase, token: "", demo: !envBase, tz: "Asia/Jakarta" };
+  const envBase = (import.meta.env.VITE_API_BASE_URL as string | undefined) || DEFAULT_API_BASE;
+  const def: Settings = { apiBase: envBase, token: "", demo: false, tz: "Asia/Jakarta" };
   if (typeof window === "undefined") return def;
   try {
-    return { ...def, ...JSON.parse(localStorage.getItem(KEY) || "{}") };
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return def;
+    const parsed = JSON.parse(raw);
+    if (!parsed.apiBase) parsed.apiBase = envBase;
+    return { ...def, ...parsed };
   } catch {
     return def;
   }
