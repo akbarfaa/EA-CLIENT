@@ -43,9 +43,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r bg-sidebar md:flex">
-        <div className="border-b px-4 py-3">
-          <div className="num text-sm font-semibold text-gold">XAUUSDc</div>
-          <div className="label-xs">Observability Terminal</div>
+        <div className="flex items-center gap-2.5 border-b px-4 py-3">
+          <img src="/logo.svg" alt="EA Advisor" className="size-8 rounded-sm object-contain" />
+          <div>
+            <div className="num text-sm font-semibold text-gold">XAUUSDc</div>
+            <div className="label-xs">Observability Terminal</div>
+          </div>
         </div>
         <nav className="flex-1 overflow-y-auto p-2">
           {NAV.map((n) => (
@@ -59,6 +62,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-11 items-center gap-3 border-b bg-background/95 px-4">
+          <Link to="/" className="flex items-center gap-2 md:hidden">
+            <img src="/logo.svg" alt="EA Advisor" className="size-6 object-contain" />
+          </Link>
           <select className="rounded-sm border bg-card px-2 py-1 text-xs md:hidden" value={path} onChange={(e) => (window.location.href = e.target.value)}>
             {NAV.map((n) => <option key={n.to} value={n.to}>{n[lang]}</option>)}
           </select>
