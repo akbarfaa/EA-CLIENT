@@ -54,7 +54,7 @@ function Overview() {
           <QueryState q={eq}>
             <div className="h-64">
               <ResponsiveContainer>
-                <LineChart data={eq.data}>
+                <LineChart data={eq.data ?? []}>
                   <CartesianGrid stroke="var(--border)" strokeDasharray="2 4" vertical={false} />
                   <XAxis dataKey="t" {...chartAxis} />
                   <YAxis {...chartAxis} domain={["auto", "auto"]} width={50} />
@@ -70,7 +70,7 @@ function Overview() {
           <QueryState q={eq}>
             <div className="h-64">
               <ResponsiveContainer>
-                <AreaChart data={eq.data}>
+                <AreaChart data={eq.data ?? []}>
                   <XAxis dataKey="t" {...chartAxis} />
                   <YAxis {...chartAxis} width={36} />
                   <Tooltip {...tooltipStyle} />
@@ -84,7 +84,7 @@ function Overview() {
           <QueryState q={eq}>
             <div className="h-48">
               <ResponsiveContainer>
-                <BarChart data={eq.data}>
+                <BarChart data={eq.data ?? []}>
                   <XAxis dataKey="t" {...chartAxis} />
                   <YAxis {...chartAxis} width={40} />
                   <Tooltip {...tooltipStyle} />
@@ -100,7 +100,7 @@ function Overview() {
           <QueryState q={hr}>
             <div className="h-48">
               <ResponsiveContainer>
-                <BarChart data={hr.data}>
+                <BarChart data={hr.data ?? []}>
                   <XAxis dataKey="h" {...chartAxis} />
                   <YAxis {...chartAxis} width={32} />
                   <Tooltip {...tooltipStyle} />

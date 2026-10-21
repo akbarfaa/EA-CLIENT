@@ -55,7 +55,7 @@ const SRC: Record<string, string> = {
   unknown: "border-border text-muted-foreground",
 };
 export function SourceBadge({ source }: { source: string }) {
-  return <span className={cn("num rounded-sm border px-1.5 py-0.5 text-[10px] uppercase", SRC[source] ?? SRC.unknown)}>{source}</span>;
+  return <span className={cn("num rounded-sm border px-1.5 py-0.5 text-[10px] uppercase", SRC[source] ?? SRC["unknown"])}>{source}</span>;
 }
 
 const H: Record<Health, string> = {
