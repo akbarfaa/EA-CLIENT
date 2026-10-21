@@ -82,7 +82,7 @@ export function NotificationManager() {
         toast.success("✅ Push Notification Berhasil Diaktifkan!", {
           description: "Anda akan menerima notifikasi setiap kali EA Entry atau Trade Closed.",
         });
-        triggerOSNotification("🔔 Notifikasi EA Aktif", "Anda siap menerima sinyal realtime dari ketiga EA (EA01, EA02, EA03)!");
+        triggerOSNotification("🔔 Notifikasi EA Aktif", "Anda siap menerima sinyal realtime dari semua EA (EA01 - EA06)!");
         soundNotifier.playEntry();
       } else if (res === "denied") {
         toast.error("Izin Notifikasi Ditolak", {
