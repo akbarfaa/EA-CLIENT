@@ -57,14 +57,18 @@ function Eas() {
       const tMatch = evt.msg.match(/Ticket=(\d+)/);
       const netMatch = evt.msg.match(/Net=([+-]?[\d.]+)/);
       const sideMatch = evt.msg.match(/\b(BUY|SELL)\b/);
-      if (tMatch && netMatch) {
-        if (!closedDealsByEA[eaTag]) closedDealsByEA[eaTag] = [];
-        const ticket = parseInt(tMatch[1], 10);
-        if (!closedDealsByEA[eaTag].some((d) => d.ticket === ticket)) {
-          closedDealsByEA[eaTag].push({
+      if (tMatch?.[1] && netMatch?.[1]) {
+        const ticketStr = tMatch[1];
+        const netStr = netMatch[1];
+        const sideStr = sideMatch?.[1] ?? "BUY";
+        const eaDeals = closedDealsByEA[eaTag] ?? [];
+        closedDealsByEA[eaTag] = eaDeals;
+        const ticket = parseInt(ticketStr, 10);
+        if (!eaDeals.some((d) => d.ticket === ticket)) {
+          eaDeals.push({
             ticket,
-            net: parseFloat(netMatch[1]),
-            side: sideMatch ? sideMatch[1] : "BUY",
+            net: parseFloat(netStr),
+            side: sideStr,
           });
         }
       }
@@ -76,7 +80,8 @@ function Eas() {
     const eaKey = Object.keys(closedDealsByEA).find(
       (k) => k === ea.id.toUpperCase() || ea.name.toUpperCase().includes(k)
     );
-    const deals = eaKey ? closedDealsByEA[eaKey] : [];
+    const deals: { ticket: number; net: number; side: string }[] =
+      (eaKey ? closedDealsByEA[eaKey] : undefined) ?? [];
 
     let netPnl = ea.netPnl;
     let trades = ea.trades;
