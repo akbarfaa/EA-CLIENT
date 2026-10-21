@@ -10,7 +10,21 @@ export const Route = createFileRoute("/positions")({
   component: Positions,
 });
 
-type P = ReturnType<typeof demo.positions>;
+export interface PositionRow {
+  ticket: number;
+  symbol: string;
+  side: string;
+  volume: number;
+  entry: number;
+  price: number;
+  sl: number | null;
+  tp: number;
+  pnl: number;
+  openedAt: string;
+  ea: string;
+  magic: number;
+  riskToSl: number | null;
+}
 
 interface TelemetryEventItem {
   id: string;
@@ -28,11 +42,11 @@ interface SummaryData {
 }
 
 function Positions() {
-  const q = useApi<P>("/accounts/default/positions", "positions", 3_000);
+  const q = useApi<PositionRow[]>("/accounts/default/positions", "positions", 3_000);
   const eventsQ = useApi<TelemetryEventItem[]>("/telemetry/events?limit=80", "events", 3_000);
   const summaryQ = useApi<SummaryData>("/accounts/default/summary", "summary", 3_000);
 
-  let rows = q.data ?? [];
+  let rows: PositionRow[] = q.data ?? [];
 
   // Fallback / Hybrid: If backend positions table is empty, reconstruct from active order events!
   if (rows.length === 0 && eventsQ.data && eventsQ.data.length > 0) {
@@ -45,8 +59,8 @@ function Positions() {
     if (patrolEvt) {
       const askM = patrolEvt.msg.match(/Ask:\s*([\d.]+)/);
       const bidM = patrolEvt.msg.match(/Bid:\s*([\d.]+)/);
-      if (askM) latestAsk = parseFloat(askM[1]);
-      if (bidM) latestBid = parseFloat(bidM[1]);
+      if (askM && askM[1]) latestAsk = parseFloat(askM[1]);
+      if (bidM && bidM[1]) latestBid = parseFloat(bidM[1]);
     }
 
     // 2. Map magic numbers
@@ -61,7 +75,7 @@ function Positions() {
     };
 
     // 3. Find active orders
-    const reconstructed: NonNullable<P> = [];
+    const reconstructed: PositionRow[] = [];
     const seenEAs = new Set<string>();
 
     for (const evt of events) {
@@ -89,12 +103,15 @@ function Positions() {
         const slM = evt.msg.match(/SL=([\d.]+)/i);
         const tpM = evt.msg.match(/TP=([\d.]+)/i);
 
-        if (sideM && entryM) {
-          const side = sideM[1].toUpperCase() as "BUY" | "SELL";
-          const volume = lotsM ? parseFloat(lotsM[1]) : 0.01;
-          const entry = parseFloat(entryM[1]);
-          const sl = slM ? parseFloat(slM[1]) : null;
-          const tp = tpM ? parseFloat(tpM[1]) : 0;
+        const sideStr = sideM?.[1];
+        const entryStr = entryM?.[1];
+
+        if (sideStr && entryStr) {
+          const side = sideStr.toUpperCase();
+          const volume = lotsM && lotsM[1] ? parseFloat(lotsM[1]) : 0.01;
+          const entry = parseFloat(entryStr);
+          const sl = slM && slM[1] ? parseFloat(slM[1]) : null;
+          const tp = tpM && tpM[1] ? parseFloat(tpM[1]) : 0;
 
           const currentPrice =
             side === "SELL"
