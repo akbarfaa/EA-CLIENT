@@ -12,9 +12,135 @@ export const Route = createFileRoute("/positions")({
 
 type P = ReturnType<typeof demo.positions>;
 
+interface TelemetryEventItem {
+  id: string;
+  t: string;
+  ea: string;
+  type: string;
+  status: string;
+  msg: string;
+}
+
+interface SummaryData {
+  floating: number;
+  equity: number;
+  balance: number;
+}
+
 function Positions() {
   const q = useApi<P>("/accounts/default/positions", "positions", 3_000);
-  const rows = q.data ?? [];
+  const eventsQ = useApi<TelemetryEventItem[]>("/telemetry/events?limit=80", "events", 3_000);
+  const summaryQ = useApi<SummaryData>("/accounts/default/summary", "summary", 3_000);
+
+  let rows = q.data ?? [];
+
+  // Fallback / Hybrid: If backend positions table is empty, reconstruct from active order events!
+  if (rows.length === 0 && eventsQ.data && eventsQ.data.length > 0) {
+    const events = eventsQ.data;
+
+    // 1. Get latest prices from patrol events
+    let latestAsk = 0;
+    let latestBid = 0;
+    const patrolEvt = events.find((e) => e.type === "patrol" && e.msg.includes("Ask:"));
+    if (patrolEvt) {
+      const askM = patrolEvt.msg.match(/Ask:\s*([\d.]+)/);
+      const bidM = patrolEvt.msg.match(/Bid:\s*([\d.]+)/);
+      if (askM) latestAsk = parseFloat(askM[1]);
+      if (bidM) latestBid = parseFloat(bidM[1]);
+    }
+
+    // 2. Map magic numbers
+    const magicMap: Record<string, number> = {
+      EA01: 20240001,
+      EA02: 20240002,
+      EA03: 20240003,
+      EA04: 20240004,
+      EA05: 20240005,
+      EA06: 20240006,
+      EA07: 20240007,
+    };
+
+    // 3. Find active orders
+    const reconstructed: NonNullable<P> = [];
+    const seenEAs = new Set<string>();
+
+    for (const evt of events) {
+      if ((evt.type === "order" || evt.type === "order_entry") && evt.status === "pass") {
+        const ea = evt.ea;
+        if (seenEAs.has(ea)) continue;
+        seenEAs.add(ea);
+
+        // Check if there is any deal/deal_closed event for this EA AFTER this order
+        const orderTime = new Date(evt.t).getTime();
+        const hasClosed = events.some(
+          (d) =>
+            (d.type === "deal" || d.type === "deal_closed") &&
+            d.ea === ea &&
+            new Date(d.t).getTime() >= orderTime
+        );
+
+        if (hasClosed) continue;
+
+        // Parse order message
+        // Example: "ORDER OK | SELL | Lots=0.01 | Entry=4113.25 | SL=4124.39 | TP=4090.98 | Expansion=1.3495"
+        const sideM = evt.msg.match(/\|\s*(BUY|SELL)\s*\|/i);
+        const lotsM = evt.msg.match(/Lots=([\d.]+)/i);
+        const entryM = evt.msg.match(/Entry=([\d.]+)/i);
+        const slM = evt.msg.match(/SL=([\d.]+)/i);
+        const tpM = evt.msg.match(/TP=([\d.]+)/i);
+
+        if (sideM && entryM) {
+          const side = sideM[1].toUpperCase() as "BUY" | "SELL";
+          const volume = lotsM ? parseFloat(lotsM[1]) : 0.01;
+          const entry = parseFloat(entryM[1]);
+          const sl = slM ? parseFloat(slM[1]) : null;
+          const tp = tpM ? parseFloat(tpM[1]) : 0;
+
+          const currentPrice =
+            side === "SELL"
+              ? latestAsk || latestBid || entry
+              : latestBid || latestAsk || entry;
+
+          // Use real account floating PnL if available or point diff
+          const pnl =
+            summaryQ.data && Math.abs(summaryQ.data.floating) > 0
+              ? summaryQ.data.floating
+              : side === "BUY"
+              ? (currentPrice - entry) * volume * 100
+              : (entry - currentPrice) * volume * 100;
+
+          const riskToSl = sl ? Math.abs(entry - sl) * volume * 100 : null;
+
+          // Stable ticket from event hash
+          const hashNum = evt.id
+            .split("")
+            .reduce((acc, char) => acc + char.charCodeAt(0), 1000);
+          const ticket = 5000000 + (hashNum % 900000);
+
+          reconstructed.push({
+            ticket,
+            symbol: "XAUUSDm",
+            side,
+            volume,
+            entry,
+            price: currentPrice,
+            sl,
+            tp,
+            pnl: Math.round(pnl * 100) / 100,
+            openedAt: evt.t,
+            ea,
+            magic: magicMap[ea] || 20240003,
+            riskToSl: riskToSl ? Math.round(riskToSl * 100) / 100 : null,
+          });
+        }
+      }
+    }
+
+    if (reconstructed.length > 0) {
+      rows = reconstructed;
+    }
+  }
+
   const noSl = rows.filter((r) => r.sl == null);
   const bySym = Object.entries(rows.reduce<Record<string, { lots: number; eas: Set<string>; dirs: Set<string> }>>((a, r) => {
     const k = r.symbol; a[k] ??= { lots: 0, eas: new Set(), dirs: new Set() };
