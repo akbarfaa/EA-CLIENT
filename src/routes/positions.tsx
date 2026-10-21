@@ -13,7 +13,7 @@ export const Route = createFileRoute("/positions")({
 type P = ReturnType<typeof demo.positions>;
 
 function Positions() {
-  const q = useApi<P>("/accounts/default/positions", "positions", 10_000);
+  const q = useApi<P>("/accounts/default/positions", "positions", 3_000);
   const rows = q.data ?? [];
   const noSl = rows.filter((r) => r.sl == null);
   const bySym = Object.entries(rows.reduce<Record<string, { lots: number; eas: Set<string>; dirs: Set<string> }>>((a, r) => {

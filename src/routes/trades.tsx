@@ -20,7 +20,7 @@ function Trades() {
   const [f, setF] = useState({ ea: "", side: "", outcome: "", source: "", search: "" });
   const [page, setPage] = useState(0);
   const qs = new URLSearchParams(Object.entries({ ...f, page: String(page + 1), pageSize: String(PAGE) }).filter(([, v]) => v)).toString();
-  const q = useApi<T[]>(`/trades?${qs}`, "trades");
+  const q = useApi<T[]>(`/trades?${qs}`, "trades", 10_000);
   const all = (q.data ?? []).filter((t) => (!f.ea || t.ea === f.ea) && (!f.side || t.side === f.side) && (!f.source || t.source === f.source) && (!f.outcome || (f.outcome === "win" ? t.net > 0 : t.net <= 0)) && (!f.search || String(t.id).includes(f.search)));
   const rows = all.slice(page * PAGE, page * PAGE + PAGE);
   const sel = (k: keyof typeof f, opts: string[]) => (

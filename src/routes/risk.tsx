@@ -13,9 +13,9 @@ export const Route = createFileRoute("/risk")({
 });
 
 function Risk() {
-  const sq = useApi<ReturnType<typeof demo.summary>>("/accounts/default/summary", "summary", 15_000);
-  const pq = useApi<ReturnType<typeof demo.positions>>("/accounts/default/positions", "positions", 15_000);
-  const eq = useApi<ReturnType<typeof demo.eas>>("/eas", "eas", 15_000);
+  const sq = useApi<ReturnType<typeof demo.summary>>("/accounts/default/summary", "summary", 5_000);
+  const pq = useApi<ReturnType<typeof demo.positions>>("/accounts/default/positions", "positions", 5_000);
+  const eq = useApi<ReturnType<typeof demo.eas>>("/eas", "eas", 5_000);
   const [th, setTh] = useState({ dailyLoss: 2, dd: 8, maxPos: 3 });
   const s = sq.data;
   const pos = pq.data ?? [];

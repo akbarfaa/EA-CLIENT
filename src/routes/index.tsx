@@ -14,9 +14,9 @@ type Summary = ReturnType<typeof demo.summary>;
 type Eq = ReturnType<typeof demo.equity>;
 
 function Overview() {
-  const sq = useApi<Summary>("/accounts/default/summary", "summary", 5_000);
-  const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity");
-  const hr = useApi<ReturnType<typeof demo.byHour>>("/accounts/default/performance?groupBy=hour", "byHour");
+  const sq = useApi<Summary>("/accounts/default/summary", "summary", 3_000);
+  const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity", 15_000);
+  const hr = useApi<ReturnType<typeof demo.byHour>>("/accounts/default/performance?groupBy=hour", "byHour", 30_000);
   const s = sq.data;
   const stale = s && Date.now() - new Date(s.lastTelemetry.endsWith("Z") || s.lastTelemetry.includes("+") ? s.lastTelemetry : `${s.lastTelemetry}Z`).getTime() > 600_000;
 

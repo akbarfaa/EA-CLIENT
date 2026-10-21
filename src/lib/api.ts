@@ -55,7 +55,7 @@ export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: 
     queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path)),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
-    staleTime: 3_000,
+    staleTime: 1_500,
   });
 }
 

@@ -16,7 +16,7 @@ const MIN_SAMPLE = 100;
 const COLS: [keyof E, string][] = [["netPnl", "Net P/L"], ["floating", "Float"], ["trades", "Trades"], ["winRate", "Win%"], ["pf", "PF"], ["expectancy", "Exp."], ["avgWin", "Avg W"], ["avgLoss", "Avg L"], ["maxDd", "Max DD%"], ["avgR", "Avg R"], ["positions", "Pos"]];
 
 function Eas() {
-  const q = useApi<E[]>("/eas", "eas", 15_000);
+  const q = useApi<E[]>("/eas", "eas", 5_000);
   const [sort, setSort] = useState<keyof E>("pf");
   const rows = [...(q.data ?? [])].sort((a, b) => (b[sort] as number) - (a[sort] as number));
   return (

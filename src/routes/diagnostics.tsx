@@ -17,7 +17,7 @@ const ICON = { pass: [CheckCircle2, "text-profit"], fail: [XCircle, "text-loss"]
 
 function Diag() {
   const [ea, setEa] = useState("all");
-  const q = useApi<Ev[]>(`/telemetry/events?limit=200${ea !== "all" ? `&ea=${ea}` : ""}`, "events", 10_000);
+  const q = useApi<Ev[]>(`/telemetry/events?limit=200${ea !== "all" ? `&ea=${ea}` : ""}`, "events", 5_000);
   const rows = (q.data ?? []).filter((e) => ea === "all" || e.ea === ea);
   return (
     <div className="space-y-4">
