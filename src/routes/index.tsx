@@ -14,7 +14,7 @@ type Summary = ReturnType<typeof demo.summary>;
 type Eq = ReturnType<typeof demo.equity>;
 
 function Overview() {
-  const sq = useApi<Summary>("/accounts/default/summary", "summary", 15_000);
+  const sq = useApi<Summary>("/accounts/default/summary", "summary", 5_000);
   const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity");
   const hr = useApi<ReturnType<typeof demo.byHour>>("/accounts/default/performance?groupBy=hour", "byHour");
   const s = sq.data;
