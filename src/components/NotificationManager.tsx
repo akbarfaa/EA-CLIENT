@@ -302,39 +302,39 @@ export function NotificationManager() {
       <PopoverTrigger asChild>
         <button
           aria-label="Notification Center"
-          className="relative rounded-sm p-1.5 transition-colors hover:bg-accent flex items-center justify-center"
+          className="relative rounded-sm p-1.5 transition-colors hover:bg-accent flex items-center justify-center text-foreground"
         >
           {isGranted ? (
             <div className="relative">
-              <Bell className="size-4 text-emerald-400" />
+              <Bell className="size-4 text-profit" />
               <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-profit opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-profit"></span>
               </span>
             </div>
           ) : (
             <div className="relative">
-              <BellOff className="size-4 text-amber-400 opacity-80" />
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-500"></span>
+              <BellOff className="size-4 text-warn opacity-80" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-warn"></span>
             </div>
           )}
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-80 md:w-96 p-4 bg-zinc-950 border border-zinc-800 text-zinc-100 shadow-2xl">
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+      <PopoverContent align="end" className="w-84 sm:w-96 p-4 rounded-md border border-border bg-popover text-popover-foreground shadow-xl">
+        <div className="flex items-center justify-between pb-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <BellRing className="size-4 text-amber-400" />
+            <BellRing className="size-4 text-gold" />
             <div>
-              <h4 className="text-sm font-semibold tracking-tight">EA Push Notifications</h4>
-              <p className="text-[11px] text-zinc-400">Order Entry & Hasil Trade Ketiga EA</p>
+              <h4 className="text-sm font-semibold tracking-tight text-foreground">EA Push Notifications</h4>
+              <p className="text-[11px] text-muted-foreground">Order Entry & Hasil Trade Ketiga EA</p>
             </div>
           </div>
           <span
-            className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+            className={`num text-[10px] px-2 py-0.5 rounded-full border ${
               isGranted
-                ? "bg-emerald-950/80 text-emerald-300 border-emerald-800"
-                : "bg-amber-950/80 text-amber-300 border-amber-800"
+                ? "bg-profit/15 text-profit border-profit/30"
+                : "bg-warn/15 text-warn border-warn/30"
             }`}
           >
             {isGranted ? "ACTIVE" : "INACTIVE"}
@@ -343,14 +343,16 @@ export function NotificationManager() {
 
         {/* Permission Request Prompt */}
         {!isGranted && (
-          <div className="mt-3 p-2.5 rounded bg-amber-950/40 border border-amber-800/60 text-xs text-amber-200 space-y-2">
+          <div className="mt-3 p-2.5 rounded-md border border-warn/30 bg-warn/10 text-xs text-foreground space-y-2">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="size-4 text-amber-400 shrink-0 mt-0.5" />
-              <span>Push Notifikasi browser belum aktif. Aktifkan agar HP atau Laptop Anda menerima notifikasi saat EA entry dan exit.</span>
+              <AlertTriangle className="size-4 text-warn shrink-0 mt-0.5" />
+              <span className="text-muted-foreground">
+                Push Notifikasi browser belum aktif. Aktifkan agar HP atau Laptop Anda menerima notifikasi saat EA entry dan exit.
+              </span>
             </div>
             <button
               onClick={requestNotificationPermission}
-              className="w-full py-1.5 px-3 rounded bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow"
+              className="w-full py-1.5 px-3 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
             >
               <Bell className="size-3.5" /> Aktifkan Notifikasi Web & Mobile
             </button>
@@ -360,15 +362,15 @@ export function NotificationManager() {
         {/* Preference Controls */}
         <div className="mt-3 space-y-2.5 text-xs py-1">
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-zinc-300">
-              {soundEnabled ? <Volume2 className="size-4 text-emerald-400" /> : <VolumeX className="size-4 text-zinc-500" />}
+            <span className="flex items-center gap-2 text-foreground">
+              {soundEnabled ? <Volume2 className="size-4 text-profit" /> : <VolumeX className="size-4 text-muted-foreground" />}
               Audio Chime (Suara Bel Sinyal)
             </span>
             <Switch checked={soundEnabled} onCheckedChange={updateSound} />
           </div>
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-zinc-300">
-              <Smartphone className="size-4 text-cyan-400" />
+            <span className="flex items-center gap-2 text-foreground">
+              <Smartphone className="size-4 text-gold" />
               Notifikasi Sistem OS / Pop-up
             </span>
             <Switch checked={pushEnabled} onCheckedChange={updatePush} />
@@ -376,69 +378,71 @@ export function NotificationManager() {
         </div>
 
         {/* Quick Test Alerts */}
-        <div className="mt-3 pt-2 border-t border-zinc-800/80">
-          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+        <div className="mt-3 pt-2.5 border-t border-border">
+          <div className="label-xs mb-1.5 flex items-center justify-between">
             <span>Uji Coba Notifikasi (Simulasi)</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
             <button
               onClick={runTestEntry}
-              className="px-2 py-1.5 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-cyan-300 font-medium flex items-center justify-center gap-1 transition"
+              className="px-2 py-1.5 rounded-sm bg-muted/60 hover:bg-muted border border-border text-[10px] font-medium text-foreground flex items-center justify-center gap-1 transition-colors"
             >
-              <Play className="size-3" /> Tes Entry
+              <Play className="size-3 text-chart-5" /> Tes Entry
             </button>
             <button
               onClick={runTestWin}
-              className="px-2 py-1.5 rounded bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-[10px] text-emerald-300 font-medium flex items-center justify-center gap-1 transition"
+              className="px-2 py-1.5 rounded-sm bg-profit/15 hover:bg-profit/25 border border-profit/30 text-[10px] font-medium text-profit flex items-center justify-center gap-1 transition-colors"
             >
-              <Play className="size-3" /> Tes Win
+              <Play className="size-3 text-profit" /> Tes Win
             </button>
             <button
               onClick={runTestLoss}
-              className="px-2 py-1.5 rounded bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-[10px] text-rose-300 font-medium flex items-center justify-center gap-1 transition"
+              className="px-2 py-1.5 rounded-sm bg-loss/15 hover:bg-loss/25 border border-loss/30 text-[10px] font-medium text-loss flex items-center justify-center gap-1 transition-colors"
             >
-              <Play className="size-3" /> Tes Loss
+              <Play className="size-3 text-loss" /> Tes Loss
             </button>
           </div>
         </div>
 
         {/* Mobile PWA Installation Guide */}
-        <div className="mt-3 p-2 rounded bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-400">
-          <div className="font-semibold text-zinc-200 flex items-center gap-1.5 mb-1">
+        <div className="mt-3 p-2.5 rounded-md border border-border bg-muted/30 text-[11px]">
+          <div className="font-semibold text-foreground flex items-center gap-1.5 mb-1">
             <Smartphone className="size-3.5 text-gold" />
             Install di HP (PWA App):
           </div>
-          <ul className="list-disc list-inside space-y-0.5 text-[10px] text-zinc-400">
-            <li><strong className="text-zinc-200">Android:</strong> Buka Chrome &rarr; Menu ⋮ &rarr; "Install App" / "Tambahkan ke Layar Utama".</li>
-            <li><strong className="text-zinc-200">iPhone (iOS):</strong> Buka Safari &rarr; Tombol Share ⎋ &rarr; "Add to Home Screen".</li>
+          <ul className="list-disc list-inside space-y-0.5 text-[10px] text-muted-foreground">
+            <li><strong className="text-foreground">Android:</strong> Buka Chrome &rarr; Menu ⋮ &rarr; "Install App" / "Tambahkan ke Layar Utama".</li>
+            <li><strong className="text-foreground">iPhone (iOS):</strong> Buka Safari &rarr; Tombol Share ⎋ &rarr; "Add to Home Screen".</li>
           </ul>
         </div>
 
         {/* Recent Alerts Feed */}
-        <div className="mt-3 pt-2 border-t border-zinc-800">
-          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+        <div className="mt-3 pt-2.5 border-t border-border">
+          <div className="label-xs mb-1.5">
             Riwayat Notifikasi Sesi Ini ({recentNotifications.length})
           </div>
-          <div className="max-h-32 overflow-y-auto space-y-1.5 pr-1 font-mono text-[10px]">
+          <div className="max-h-36 overflow-y-auto space-y-1.5 pr-1 font-mono text-[10px]">
             {recentNotifications.length === 0 ? (
-              <p className="text-zinc-500 italic py-1 text-center">Belum ada sinyal entry/exit baru di sesi ini.</p>
+              <p className="text-muted-foreground italic py-2 text-center">Belum ada sinyal entry/exit baru di sesi ini.</p>
             ) : (
               recentNotifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`p-1.5 rounded border leading-tight ${
+                  className={`p-2 rounded-sm border leading-tight ${
                     n.type === "entry"
-                      ? "bg-cyan-950/40 border-cyan-800 text-cyan-200"
+                      ? "bg-muted/40 border-border text-foreground"
                       : n.type === "win"
-                      ? "bg-emerald-950/40 border-emerald-800 text-emerald-200"
-                      : "bg-rose-950/40 border-rose-800 text-rose-200"
+                      ? "bg-profit/10 border-profit/30 text-foreground"
+                      : "bg-loss/10 border-loss/30 text-foreground"
                   }`}
                 >
                   <div className="flex items-center justify-between font-bold">
-                    <span>{n.title}</span>
-                    <span className="text-[9px] opacity-75">{n.time}</span>
+                    <span className={n.type === "win" ? "text-profit" : n.type === "loss" ? "text-loss" : "text-foreground"}>
+                      {n.title}
+                    </span>
+                    <span className="num text-[9px] text-muted-foreground">{n.time}</span>
                   </div>
-                  <p className="text-[9px] opacity-90 mt-0.5 line-clamp-2">{n.body}</p>
+                  <p className="num text-[10px] text-muted-foreground mt-1 line-clamp-2">{n.body}</p>
                 </div>
               ))
             )}

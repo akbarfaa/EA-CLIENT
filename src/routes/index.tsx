@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useApi } from "@/lib/api";
@@ -15,12 +16,22 @@ type Eq = ReturnType<typeof demo.equity>;
 type Ev = ReturnType<typeof demo.events>[number];
 
 function Overview() {
+  const [filterEa, setFilterEa] = useState<string>("ALL");
+  const [onlyTrades, setOnlyTrades] = useState<boolean>(false);
+
   const sq = useApi<Summary>("/accounts/default/summary", "summary", 3_000);
   const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity", 15_000);
   const hr = useApi<ReturnType<typeof demo.byHour>>("/accounts/default/performance?groupBy=hour", "byHour", 30_000);
   const logQ = useApi<Ev[]>("/telemetry/events?limit=40", "events", 3_000);
   const s = sq.data;
   const stale = s && Date.now() - new Date(s.lastTelemetry.endsWith("Z") || s.lastTelemetry.includes("+") ? s.lastTelemetry : `${s.lastTelemetry}Z`).getTime() > 600_000;
+
+  const rawLogs = logQ.data ?? [];
+  const filteredLogs = rawLogs.filter((e) => {
+    if (filterEa !== "ALL" && e.ea !== filterEa) return false;
+    if (onlyTrades && !["order", "order_entry", "deal", "deal_closed"].includes(e.type)) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-4">
@@ -118,31 +129,99 @@ function Overview() {
 
       <Panel
         title={
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              MT5 Experts Live Log Stream
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-profit opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-profit"></span>
             </span>
-            <span className="text-[10px] text-muted-foreground font-mono">Realtime Telemetry</span>
+            <span>MT5 Experts Live Log Stream</span>
+          </div>
+        }
+        right={
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center rounded-sm border bg-background p-0.5 text-[10px]">
+              {["ALL", "EA01", "EA02", "EA03"].map((ea) => (
+                <button
+                  key={ea}
+                  onClick={() => setFilterEa(ea)}
+                  className={`rounded-xs px-2 py-0.5 font-medium transition-colors ${
+                    filterEa === ea
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {ea}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setOnlyTrades(!onlyTrades)}
+              className={`rounded-sm border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                onlyTrades
+                  ? "border-profit/40 bg-profit/15 text-profit"
+                  : "border-border bg-background text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Trade Sinyal Saja
+            </button>
           </div>
         }
       >
         <QueryState q={logQ} rows={4}>
-          <div className="max-h-64 overflow-y-auto rounded-md bg-zinc-950 p-3 font-mono text-xs text-zinc-100 shadow-inner space-y-1.5 border border-zinc-800">
-            {(logQ.data ?? []).length === 0 ? (
-              <p className="text-zinc-500 italic py-2">Menunggu stream log pertama dari MT5 VPS...</p>
+          <div className="max-h-72 overflow-y-auto rounded-md border border-border bg-muted/20 p-3 font-mono text-xs text-foreground space-y-1.5 shadow-inner">
+            {filteredLogs.length === 0 ? (
+              <p className="text-muted-foreground italic py-4 text-center">
+                {rawLogs.length === 0
+                  ? "Menunggu stream log pertama dari MT5 VPS..."
+                  : "Tidak ada log yang sesuai dengan filter."}
+              </p>
             ) : (
-              (logQ.data ?? []).map((e) => (
-                <div key={e.id} className="flex items-start gap-2 leading-relaxed">
-                  <span className="text-zinc-500 shrink-0">[{new Date(e.t).toLocaleTimeString()}]</span>
-                  <span className={`shrink-0 font-bold ${e.ea === "EA01" ? "text-cyan-400" : e.ea === "EA02" ? "text-amber-400" : "text-violet-400"}`}>[{e.ea}]</span>
-                  <span className={`shrink-0 text-[10px] uppercase px-1 rounded ${e.status === "pass" ? "bg-emerald-950 text-emerald-300" : e.status === "skip" ? "bg-yellow-950 text-yellow-300" : e.status === "fail" || e.status === "error" ? "bg-rose-950 text-rose-300" : "bg-zinc-800 text-zinc-300"}`}>{e.type}</span>
-                  <span className="text-zinc-200 break-all">{e.msg}</span>
-                </div>
-              ))
+              filteredLogs.map((e) => {
+                const isPass = e.status === "pass";
+                const isSkip = e.status === "skip";
+                const isFail = e.status === "fail" || e.status === "error";
+                const isTrade = ["order", "order_entry", "deal", "deal_closed"].includes(e.type);
+
+                return (
+                  <div
+                    key={e.id}
+                    className={`flex items-start gap-2 rounded-sm px-2 py-1 transition-colors leading-relaxed ${
+                      isTrade
+                        ? "bg-muted/70 border border-border font-medium"
+                        : "hover:bg-muted/30"
+                    }`}
+                  >
+                    <span className="num text-[11px] text-muted-foreground shrink-0">
+                      [{new Date(e.t).toLocaleTimeString()}]
+                    </span>
+                    <span
+                      className={`num shrink-0 font-bold ${
+                        e.ea === "EA01"
+                          ? "text-chart-5"
+                          : e.ea === "EA02"
+                          ? "text-gold"
+                          : "text-chart-1"
+                      }`}
+                    >
+                      [{e.ea}]
+                    </span>
+                    <span
+                      className={`num shrink-0 text-[10px] uppercase px-1.5 py-0.2 rounded border ${
+                        isPass
+                          ? "bg-profit/15 text-profit border-profit/30"
+                          : isSkip
+                          ? "bg-warn/15 text-warn border-warn/30"
+                          : isFail
+                          ? "bg-loss/15 text-loss border-loss/30"
+                          : "bg-muted text-muted-foreground border-border"
+                      }`}
+                    >
+                      {e.type}
+                    </span>
+                    <span className="text-foreground break-all">{e.msg}</span>
+                  </div>
+                );
+              })
             )}
           </div>
         </QueryState>
