@@ -140,7 +140,7 @@ function Overview() {
         right={
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center rounded-sm border bg-background p-0.5 text-[10px]">
-              {["ALL", "EA01", "EA02", "EA03", "EA04", "EA05", "EA06"].map((ea) => (
+              {["ALL", "EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07"].map((ea) => (
                 <button
                   key={ea}
                   onClick={() => setFilterEa(ea)}
@@ -208,6 +208,8 @@ function Overview() {
                           ? "text-cyan-400"
                           : e.ea === "EA06"
                           ? "text-purple-400"
+                          : e.ea === "EA07"
+                          ? "text-rose-400"
                           : "text-foreground"
                       }`}
                     >

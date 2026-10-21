@@ -24,7 +24,7 @@ function Diag() {
       <PageHeader
         title="EA Diagnostics"
         sub="Timeline reconstructed only from events the EA actually reports."
-        right={<select value={ea} onChange={(e) => setEa(e.target.value)} className="rounded-sm border bg-card px-2 py-1 text-xs">{["all", "EA01", "EA02", "EA03", "EA04", "EA05", "EA06"].map((x) => <option key={x}>{x}</option>)}</select>}
+        right={<select value={ea} onChange={(e) => setEa(e.target.value)} className="rounded-sm border bg-card px-2 py-1 text-xs">{["all", "EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07"].map((x) => <option key={x}>{x}</option>)}</select>}
       />
       <Panel title="Event timeline">
         <QueryState q={q} rows={6}>
