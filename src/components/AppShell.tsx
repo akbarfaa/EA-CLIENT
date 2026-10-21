@@ -4,6 +4,8 @@ import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, 
 import { getSettings } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
+import { NotificationManager } from "./NotificationManager";
+
 const NAV = [
   { to: "/", id: "Ringkasan", en: "Overview", icon: Gauge },
   { to: "/positions", id: "Posisi Live", en: "Live Positions", icon: Layers },
@@ -73,7 +75,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           ) : (
             <span className="num truncate text-[11px] text-muted-foreground">API: {s.apiBase || "not configured"}</span>
           )}
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex items-center gap-1.5">
+            <NotificationManager />
             <button className="rounded-sm px-2 py-1 text-xs hover:bg-accent" onClick={() => { const l = lang === "id" ? "en" : "id"; setLang(l); localStorage.setItem("xau.lang", l); }}>{lang.toUpperCase()}</button>
             <button aria-label="Toggle theme" className="rounded-sm p-1.5 hover:bg-accent" onClick={() => { setDark(!dark); localStorage.setItem("xau.theme", dark ? "light" : "dark"); }}>
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
