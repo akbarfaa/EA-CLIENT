@@ -34,7 +34,7 @@ function Trades() {
       <div className="flex flex-wrap gap-2">
         <Input placeholder="Ticket…" className="h-8 w-32 text-xs" value={f.search} onChange={(e) => setF({ ...f, search: e.target.value })} />
         {sel("ea", [
-          "EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07",
+          "EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07",
           "EA01_BTC", "EA02_BTC", "EA03_BTC",
           "EA01_USOIL", "EA02_USOIL", "EA03_USOIL"
         ])}{sel("side", ["BUY", "SELL"])}{sel("outcome", ["win", "loss"])}{sel("source", ["live", "import"])}

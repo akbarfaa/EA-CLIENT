@@ -44,9 +44,9 @@ function Diag() {
             onChange={(e) => setEa(e.target.value)}
             className="rounded-sm border bg-card px-2 py-1 text-xs text-foreground focus:outline-hidden"
           >
-            <option value="all">All EAs (13)</option>
+            <option value="all">All EAs (14)</option>
             <optgroup label="XAUUSD Suite">
-              {["EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07"].map((x) => (
+              {["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07"].map((x) => (
                 <option key={x} value={x}>{x} (Gold)</option>
               ))}
             </optgroup>

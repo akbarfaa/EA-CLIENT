@@ -68,6 +68,7 @@ function Positions() {
     const magicMap: Record<string, number> = {
       EA01: 20240001,
       EA02: 20240002,
+      EA02V2: 20240008,
       EA03: 20240003,
       EA04: 20240004,
       EA05: 20240005,
