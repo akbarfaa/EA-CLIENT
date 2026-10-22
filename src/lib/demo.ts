@@ -51,8 +51,13 @@ export const demo = {
     reset();
     return Array.from({ length: 40 }, (_, i) => {
       const side = rnd() > 0.5 ? "BUY" : "SELL"; const entry = 2380 + rnd() * 50; const move = (rnd() - 0.45) * 12;
-      const vol = [0.01, 0.02, 0.05][Math.floor(rnd() * 3)]; const gross = +(move * vol * 100).toFixed(2); const comm = -(vol * 7).toFixed(2);
-      const ea = ["EA01", "EA02", "EA03"][i % 3]; const t = now() - i * 7 * 3600000;
+      const vols = [0.01, 0.02, 0.05] as const;
+      const vol = vols[Math.floor(rnd() * 3)] ?? 0.01;
+      const gross = +(move * vol * 100).toFixed(2);
+      const comm = -(vol * 7).toFixed(2);
+      const eas = ["EA01", "EA02", "EA03"] as const;
+      const ea = eas[i % 3] ?? "EA01";
+      const t = now() - i * 7 * 3600000;
       return { id: 900000 + i, symbol: "XAUUSDc", side, ea, magic: 1001 + (i % 3), volume: vol, entry: +entry.toFixed(2), exit: +(entry + (side === "BUY" ? move : -move)).toFixed(2), sl: +(entry - 7).toFixed(2), tp: +(entry + 14).toFixed(2), gross, commission: comm, swap: 0, net: +(gross + comm).toFixed(2), openedAt: iso(t - 3600000 * (1 + rnd() * 4)), closedAt: iso(t), r: +(move / 7).toFixed(2), source: i % 4 === 0 ? "import" : "live", exitReason: move > 0 ? "TP" : "SL" };
     });
   },
