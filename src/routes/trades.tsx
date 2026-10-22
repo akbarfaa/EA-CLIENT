@@ -21,7 +21,16 @@ function Trades() {
   const [page, setPage] = useState(0);
   const qs = new URLSearchParams(Object.entries({ ...f, page: String(page + 1), pageSize: String(PAGE) }).filter(([, v]) => v)).toString();
   const q = useApi<T[]>(`/trades?${qs}`, "trades", 10_000);
-  const all = (q.data ?? []).filter((t) => (!f.ea || t.ea.toUpperCase() === f.ea.toUpperCase() || t.ea.toUpperCase().startsWith(f.ea.toUpperCase() + "_") || t.ea.toUpperCase().includes(f.ea.toUpperCase())) && (!f.side || t.side === f.side) && (!f.source || t.source === f.source) && (!f.outcome || (f.outcome === "win" ? t.net > 0 : t.net <= 0)) && (!f.search || String(t.id).includes(f.search)));
+  const all = (q.data ?? []).filter((t) => {
+    const tEa = t.ea.toUpperCase();
+    const fEa = f.ea.toUpperCase();
+    const eaMatch = !f.ea || (
+      ["EA01", "EA02", "EA03"].includes(fEa)
+        ? (tEa === fEa || (tEa.startsWith(fEa + "_") && !tEa.includes("_BTC") && !tEa.includes("_USOIL")))
+        : (tEa === fEa || tEa.startsWith(fEa + "_") || tEa.includes(fEa))
+    );
+    return eaMatch && (!f.side || t.side === f.side) && (!f.source || t.source === f.source) && (!f.outcome || (f.outcome === "win" ? t.net > 0 : t.net <= 0)) && (!f.search || String(t.id).includes(f.search));
+  });
   const rows = all.slice(page * PAGE, page * PAGE + PAGE);
   const sel = (k: keyof typeof f, opts: string[]) => (
     <select value={f[k]} onChange={(e) => { setF({ ...f, [k]: e.target.value }); setPage(0); }} className="h-8 rounded-sm border bg-card px-2 text-xs">
