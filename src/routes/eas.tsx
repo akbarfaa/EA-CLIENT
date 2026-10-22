@@ -128,16 +128,11 @@ function Eas() {
     let positions = ea.positions;
     let floating = ea.floating;
 
-    if (!isActive && deals.length > 0) {
-      // Order has closed
+    if (isActive) {
+      positions = Math.max(positions, 1);
+    } else if (ea.positions === 0) {
       positions = 0;
       floating = 0;
-    } else if (!isActive && ea.positions <= 1 && ea.id !== "ea02") {
-      // Only EA02 has an open position right now
-      positions = 0;
-      floating = 0;
-    } else if (isActive) {
-      positions = 1;
     }
 
     return {
