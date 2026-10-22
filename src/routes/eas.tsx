@@ -86,10 +86,22 @@ function Eas() {
   }
 
   const rows = [...(q.data ?? [])].map((ea) => {
-    // Find matching EA tag (e.g. EA01, EA02, EA03, etc.)
-    const eaKey = Object.keys(closedDealsByEA).find(
-      (k) => k === ea.id.toUpperCase() || ea.name.toUpperCase().includes(k)
-    );
+    // Pair-safe matching helper to prevent cross-asset collision (e.g. EA01 Gold vs EA01_BTC vs EA01_USOIL)
+    const matchesEA = (tag: string) => {
+      const t = tag.toUpperCase();
+      const id = ea.id.toUpperCase();
+      const name = ea.name.toUpperCase();
+      if (t === id || t === name) return true;
+      if (t.includes(name) || name.includes(t)) {
+        if (id.includes("_BTC") && !t.includes("BTC")) return false;
+        if (id.includes("_USOIL") && !t.includes("USOIL") && !t.includes("OIL")) return false;
+        if (!id.includes("_BTC") && !id.includes("_USOIL") && (t.includes("BTC") || t.includes("USOIL") || t.includes("OIL"))) return false;
+        return true;
+      }
+      return false;
+    };
+
+    const eaKey = Object.keys(closedDealsByEA).find((k) => matchesEA(k));
     const deals: { ticket: number; net: number; side: string }[] =
       (eaKey ? closedDealsByEA[eaKey] : undefined) ?? [];
 
@@ -121,9 +133,7 @@ function Eas() {
     }
 
     // Determine accurate floating and positions
-    const isActive = Array.from(activeOrdersByEA).some(
-      (k) => k === ea.id.toUpperCase() || ea.name.toUpperCase().includes(k)
-    );
+    const isActive = Array.from(activeOrdersByEA).some((k) => matchesEA(k));
 
     let positions = ea.positions;
     let floating = ea.floating;
