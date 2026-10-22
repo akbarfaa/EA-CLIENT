@@ -4,6 +4,7 @@ import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
 import { Notice, PageHeader, Panel, QueryState, ago, fmt, signCls } from "@/components/kit";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/positions")({
   head: () => meta("Live Positions", "Open MT5 positions, stop-loss status, risk to SL and correlated exposure."),
@@ -72,6 +73,12 @@ function Positions() {
       EA05: 20240005,
       EA06: 20240006,
       EA07: 20240007,
+      EA01_BTC: 20250001,
+      EA02_BTC: 20250002,
+      EA03_BTC: 20250003,
+      EA01_USOIL: 20260001,
+      EA02_USOIL: 20260002,
+      EA03_USOIL: 20260003,
     };
 
     // 3. Find active orders
@@ -96,7 +103,6 @@ function Positions() {
         if (hasClosed) continue;
 
         // Parse order message
-        // Example: "ORDER OK | SELL | Lots=0.01 | Entry=4113.25 | SL=4124.39 | TP=4090.98 | Expansion=1.3495"
         const sideM = evt.msg.match(/\|\s*(BUY|SELL)\s*\|/i);
         const lotsM = evt.msg.match(/Lots=([\d.]+)/i);
         const entryM = evt.msg.match(/Entry=([\d.]+)/i);
@@ -118,15 +124,24 @@ function Positions() {
               ? latestAsk || latestBid || entry
               : latestBid || latestAsk || entry;
 
+          const eaUpper = (ea || "").toUpperCase();
+          const sym = eaUpper.includes("BTC")
+            ? "BTCUSDm"
+            : eaUpper.includes("USOIL") || eaUpper.includes("OIL")
+            ? "USOILm"
+            : "XAUUSDm";
+
+          const lotMultiplier = sym.includes("BTC") ? 1 : sym.includes("OIL") ? 100 : 100;
+
           // Use real account floating PnL if available or point diff
           const pnl =
             summaryQ.data && Math.abs(summaryQ.data.floating) > 0
               ? summaryQ.data.floating
               : side === "BUY"
-              ? (currentPrice - entry) * volume * 100
-              : (entry - currentPrice) * volume * 100;
+              ? (currentPrice - entry) * volume * lotMultiplier
+              : (entry - currentPrice) * volume * lotMultiplier;
 
-          const riskToSl = sl ? Math.abs(entry - sl) * volume * 100 : null;
+          const riskToSl = sl ? Math.abs(entry - sl) * volume * lotMultiplier : null;
 
           // Stable ticket from event hash
           const hashNum = evt.id
@@ -136,7 +151,7 @@ function Positions() {
 
           reconstructed.push({
             ticket,
-            symbol: "XAUUSDm",
+            symbol: sym,
             side,
             volume,
             entry,
@@ -146,7 +161,7 @@ function Positions() {
             pnl: Math.round(pnl * 100) / 100,
             openedAt: evt.t,
             ea,
-            magic: magicMap[ea] || 20240003,
+            magic: magicMap[ea] || 20240001,
             riskToSl: riskToSl ? Math.round(riskToSl * 100) / 100 : null,
           });
         }
@@ -159,33 +174,96 @@ function Positions() {
   }
 
   const noSl = rows.filter((r) => r.sl == null);
-  const bySym = Object.entries(rows.reduce<Record<string, { lots: number; eas: Set<string>; dirs: Set<string> }>>((a, r) => {
-    const k = r.symbol; a[k] ??= { lots: 0, eas: new Set(), dirs: new Set() };
-    a[k].lots += r.side === "BUY" ? r.volume : -r.volume; a[k].eas.add(r.ea); a[k].dirs.add(r.side); return a;
-  }, {}));
+  const bySym = Object.entries(
+    rows.reduce<Record<string, { lots: number; eas: Set<string>; dirs: Set<string> }>>((a, r) => {
+      const k = r.symbol;
+      a[k] ??= { lots: 0, eas: new Set(), dirs: new Set() };
+      a[k].lots += r.side === "BUY" ? r.volume : -r.volume;
+      a[k].eas.add(r.ea);
+      a[k].dirs.add(r.side);
+      return a;
+    }, {})
+  );
+
   return (
     <div className="space-y-4">
-      <PageHeader title="Live Positions" sub="Read-only. No execution controls." />
-      {noSl.length > 0 && <Notice tone="loss">{noSl.length} position(s) without a confirmed stop loss — risk is NOT zero, it is not calculable.</Notice>}
-      {bySym.filter(([, v]) => v.eas.size > 1).map(([k, v]) => <Notice key={k}>Correlated exposure: {v.eas.size} sources ({[...v.eas].join(", ")}) hold {k} positions.</Notice>)}
+      <PageHeader
+        title="Live Positions"
+        sub="Read-only multi-asset monitoring. Observational only — no trade execution."
+      />
+      {noSl.length > 0 && (
+        <Notice tone="loss">
+          {noSl.length} position(s) without a confirmed stop loss — risk is NOT zero, it is not calculable.
+        </Notice>
+      )}
+      {bySym
+        .filter(([, v]) => v.eas.size > 1)
+        .map(([k, v]) => (
+          <Notice key={k}>
+            Correlated exposure: {v.eas.size} sources ({[...v.eas].join(", ")}) hold {k} positions.
+          </Notice>
+        ))}
       <Panel title="Open positions">
         <QueryState q={q}>
-          {rows.length === 0 ? <p className="text-sm text-muted-foreground">No open positions reported.</p> : (
+          {rows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No open positions reported.</p>
+          ) : (
             <Table>
-              <TableHeader><TableRow>{["Ticket", "Symbol", "Side", "Vol", "Entry", "Price", "SL", "TP", "P/L", "Age", "EA / Magic", "Risk→SL"].map((h) => <TableHead key={h} className="label-xs">{h}</TableHead>)}</TableRow></TableHeader>
+              <TableHeader>
+                <TableRow>
+                  {["Ticket", "Symbol", "Side", "Vol", "Entry", "Price", "SL", "TP", "P/L", "Age", "EA / Magic", "Risk→SL"].map((h) => (
+                    <TableHead key={h} className="label-xs">
+                      {h}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
               <TableBody className="num text-xs">
-                {rows.map((r) => (
-                  <TableRow key={r.ticket}>
-                    <TableCell>{r.ticket}</TableCell><TableCell>{r.symbol}</TableCell>
-                    <TableCell className={r.side === "BUY" ? "text-profit" : "text-loss"}>{r.side}</TableCell>
-                    <TableCell>{r.volume}</TableCell><TableCell>{fmt(r.entry)}</TableCell><TableCell>{fmt(r.price)}</TableCell>
-                    <TableCell className={r.sl == null ? "text-loss" : ""}>{r.sl == null ? "NONE" : fmt(r.sl)}</TableCell>
-                    <TableCell>{fmt(r.tp)}</TableCell>
-                    <TableCell className={signCls(r.pnl)}>{fmt(r.pnl)}</TableCell>
-                    <TableCell>{ago(r.openedAt)}</TableCell><TableCell>{r.ea} / {r.magic}</TableCell>
-                    <TableCell className={r.riskToSl == null ? "text-warn" : ""}>{r.riskToSl == null ? "Not calculable" : fmt(r.riskToSl)}</TableCell>
-                  </TableRow>
-                ))}
+                {rows.map((r) => {
+                  const isGold = r.symbol.includes("XAU");
+                  const isBtc = r.symbol.includes("BTC");
+                  const isOil = r.symbol.includes("USOIL") || r.symbol.includes("OIL");
+
+                  return (
+                    <TableRow key={r.ticket}>
+                      <TableCell>{r.ticket}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 font-sans font-medium">
+                          <span className="num font-semibold">{r.symbol}</span>
+                          {isGold && (
+                            <span className="num rounded-xs border border-gold/40 bg-gold/10 px-1 py-0.2 text-[9px] font-semibold text-gold">
+                              XAU
+                            </span>
+                          )}
+                          {isBtc && (
+                            <span className="num rounded-xs border border-amber-500/40 bg-amber-500/10 px-1 py-0.2 text-[9px] font-semibold text-amber-600 dark:text-amber-400">
+                              BTC
+                            </span>
+                          )}
+                          {isOil && (
+                            <span className="num rounded-xs border border-emerald-500/40 bg-emerald-500/10 px-1 py-0.2 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              USOIL
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className={r.side === "BUY" ? "text-profit" : "text-loss"}>{r.side}</TableCell>
+                      <TableCell>{r.volume}</TableCell>
+                      <TableCell>{fmt(r.entry)}</TableCell>
+                      <TableCell>{fmt(r.price)}</TableCell>
+                      <TableCell className={r.sl == null ? "text-loss" : ""}>
+                        {r.sl == null ? "NONE" : fmt(r.sl)}
+                      </TableCell>
+                      <TableCell>{fmt(r.tp)}</TableCell>
+                      <TableCell className={signCls(r.pnl)}>{fmt(r.pnl)}</TableCell>
+                      <TableCell>{ago(r.openedAt)}</TableCell>
+                      <TableCell>{r.ea} / {r.magic}</TableCell>
+                      <TableCell className={r.riskToSl == null ? "text-warn" : ""}>
+                        {r.riskToSl == null ? "Not calculable" : fmt(r.riskToSl)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
@@ -193,9 +271,33 @@ function Positions() {
       </Panel>
       <Panel title="Exposure by symbol">
         <div className="grid gap-2 sm:grid-cols-3">
-          {bySym.map(([k, v]) => (
-            <div key={k} className="rounded-sm border p-2 text-xs"><div className="font-medium">{k}</div><div className="num">Net lots {fmt(v.lots)} · {[...v.dirs].join("/")} · {v.eas.size} source(s)</div></div>
-          ))}
+          {bySym.map(([k, v]) => {
+            const isGold = k.includes("XAU");
+            const isBtc = k.includes("BTC");
+            const isOil = k.includes("USOIL") || k.includes("OIL");
+
+            return (
+              <div
+                key={k}
+                className={cn(
+                  "rounded-sm border p-2.5 text-xs bg-card transition-all",
+                  isGold && "border-gold/30 hover:border-gold/50",
+                  isBtc && "border-amber-500/30 hover:border-amber-500/50",
+                  isOil && "border-emerald-500/30 hover:border-emerald-500/50"
+                )}
+              >
+                <div className="flex items-center justify-between font-medium">
+                  <span className="font-semibold text-foreground">{k}</span>
+                  {isGold && <span className="size-2 rounded-full bg-gold" />}
+                  {isBtc && <span className="size-2 rounded-full bg-amber-500" />}
+                  {isOil && <span className="size-2 rounded-full bg-emerald-500" />}
+                </div>
+                <div className="num mt-1.5 text-muted-foreground">
+                  Net lots <span className="font-semibold text-foreground">{fmt(v.lots)}</span> · {[...v.dirs].join("/")} · {v.eas.size} source(s)
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Panel>
     </div>

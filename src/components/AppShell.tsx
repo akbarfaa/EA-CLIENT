@@ -48,8 +48,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-2.5 border-b px-4 py-3">
           <img src="/logo.svg" alt="EA Advisor" className="size-8 rounded-sm object-contain" />
           <div>
-            <div className="num text-sm font-semibold text-gold">XAUUSDc</div>
-            <div className="label-xs">Observability Terminal</div>
+            <div className="flex items-center gap-1.5">
+              <span className="num text-sm font-semibold text-gold">MULTI-ASSET</span>
+              <span className="rounded-xs border border-border bg-muted/60 px-1 py-0.2 text-[9px] font-mono text-muted-foreground">3 PAIR</span>
+            </div>
+            <div className="label-xs text-[10px] text-muted-foreground">XAU · BTC · USOIL Suite</div>
           </div>
         </div>
         <nav className="flex-1 overflow-y-auto p-2">

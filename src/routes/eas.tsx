@@ -5,6 +5,7 @@ import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
 import { HealthBadge, PageHeader, Panel, QueryState, ago, fmt, pct, signCls } from "@/components/kit";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/eas")({
   head: () => meta("EA Leaderboard", "Compare EA instances by P/L, profit factor, drawdown, sample size and health."),
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/eas")({
 });
 
 type E = ReturnType<typeof demo.eas>[number];
+type AssetFilter = "ALL" | "XAU" | "BTC" | "USOIL";
 const MIN_SAMPLE = 100;
 const COLS: [keyof E, string][] = [
   ["netPnl", "Net P/L"],
@@ -36,10 +38,18 @@ interface TelemetryEventItem {
   msg: string;
 }
 
+const getAsset = (name: string, strategy: string = "") => {
+  const str = (name + " " + strategy).toUpperCase();
+  if (str.includes("BTC")) return "BTC";
+  if (str.includes("USOIL") || str.includes("OIL") || str.includes("CRUDE")) return "USOIL";
+  return "XAU";
+};
+
 function Eas() {
   const q = useApi<E[]>("/eas", "eas", 3_000);
   const eventsQ = useApi<TelemetryEventItem[]>("/telemetry/events?limit=100", "events", 3_000);
   const [sort, setSort] = useState<keyof E>("pf");
+  const [assetFilter, setAssetFilter] = useState<AssetFilter>("ALL");
 
   const events = eventsQ.data ?? [];
 
@@ -146,13 +156,43 @@ function Eas() {
     };
   }).sort((a, b) => (b[sort] as number) - (a[sort] as number));
 
+  const displayedRows = rows.filter((e) => {
+    if (assetFilter === "ALL") return true;
+    return getAsset(e.name, e.strategy) === assetFilter;
+  });
+
   return (
     <div className="space-y-4">
       <PageHeader
         title="EA Leaderboard"
-        sub={`Results with fewer than ${MIN_SAMPLE} trades are labelled insufficient evidence.`}
+        sub={`Multi-asset quantitative performance. Results with fewer than ${MIN_SAMPLE} trades are labelled insufficient evidence.`}
+        right={
+          <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs">
+            {(
+              [
+                { id: "ALL", label: `All EAs (${rows.length})` },
+                { id: "XAU", label: `Gold (${rows.filter((r) => getAsset(r.name, r.strategy) === "XAU").length})` },
+                { id: "BTC", label: `Bitcoin (${rows.filter((r) => getAsset(r.name, r.strategy) === "BTC").length})` },
+                { id: "USOIL", label: `Crude Oil (${rows.filter((r) => getAsset(r.name, r.strategy) === "USOIL").length})` },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setAssetFilter(tab.id)}
+                className={cn(
+                  "rounded-xs px-2.5 py-1 text-xs font-medium transition-colors",
+                  assetFilter === tab.id
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        }
       />
-      <Panel title="Instances">
+      <Panel title={`Instances (${displayedRows.length} active)`}>
         <QueryState q={q}>
           <Table>
             <TableHeader>
@@ -173,46 +213,65 @@ function Eas() {
               </TableRow>
             </TableHeader>
             <TableBody className="num text-xs">
-              {rows.map((e) => (
-                <TableRow key={e.id}>
-                  <TableCell>
-                    <div className="font-sans font-medium">
-                      {e.name} <span className="text-muted-foreground">v{e.version}</span>
-                    </div>
-                    <div className="font-sans text-[10px] text-muted-foreground">
-                      {e.strategy} · #{e.magic}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <HealthBadge h={e.health} />
-                    <div className="text-[10px] text-muted-foreground">{ago(e.heartbeat)}</div>
-                  </TableCell>
-                  <TableCell className={signCls(e.netPnl)}>{fmt(e.netPnl)}</TableCell>
-                  <TableCell className={signCls(e.floating)}>{fmt(e.floating)}</TableCell>
-                  <TableCell>{e.trades}</TableCell>
-                  <TableCell>{pct(e.winRate)}</TableCell>
-                  <TableCell>{fmt(e.pf)}</TableCell>
-                  <TableCell>{fmt(e.expectancy)}</TableCell>
-                  <TableCell className="text-profit">{fmt(e.avgWin)}</TableCell>
-                  <TableCell className="text-loss">{fmt(e.avgLoss)}</TableCell>
-                  <TableCell>{fmt(e.maxDd)}</TableCell>
-                  <TableCell>{fmt(e.avgR)}</TableCell>
-                  <TableCell>{e.positions}</TableCell>
-                  <TableCell>
-                    {e.trades < MIN_SAMPLE ? (
-                      <span className="text-warn">Insufficient (n={e.trades})</span>
-                    ) : (
-                      <span className="text-muted-foreground">n={e.trades}</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {displayedRows.map((e) => {
+                const asset = getAsset(e.name, e.strategy);
+                return (
+                  <TableRow key={e.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 font-sans font-medium">
+                        <span>{e.name}</span>
+                        <span className="text-muted-foreground font-normal">v{e.version}</span>
+                        {asset === "XAU" && (
+                          <span className="num rounded-xs border border-gold/40 bg-gold/10 px-1 py-0.2 text-[9px] font-semibold text-gold">
+                            XAU
+                          </span>
+                        )}
+                        {asset === "BTC" && (
+                          <span className="num rounded-xs border border-amber-500/40 bg-amber-500/10 px-1 py-0.2 text-[9px] font-semibold text-amber-600 dark:text-amber-400">
+                            BTC
+                          </span>
+                        )}
+                        {asset === "USOIL" && (
+                          <span className="num rounded-xs border border-emerald-500/40 bg-emerald-500/10 px-1 py-0.2 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            USOIL
+                          </span>
+                        )}
+                      </div>
+                      <div className="font-sans text-[10px] text-muted-foreground">
+                        {e.strategy} · #{e.magic}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <HealthBadge h={e.health} />
+                      <div className="text-[10px] text-muted-foreground">{ago(e.heartbeat)}</div>
+                    </TableCell>
+                    <TableCell className={signCls(e.netPnl)}>{fmt(e.netPnl)}</TableCell>
+                    <TableCell className={signCls(e.floating)}>{fmt(e.floating)}</TableCell>
+                    <TableCell>{e.trades}</TableCell>
+                    <TableCell>{pct(e.winRate)}</TableCell>
+                    <TableCell>{fmt(e.pf)}</TableCell>
+                    <TableCell>{fmt(e.expectancy)}</TableCell>
+                    <TableCell className="text-profit">{fmt(e.avgWin)}</TableCell>
+                    <TableCell className="text-loss">{fmt(e.avgLoss)}</TableCell>
+                    <TableCell>{fmt(e.maxDd)}</TableCell>
+                    <TableCell>{fmt(e.avgR)}</TableCell>
+                    <TableCell>{e.positions}</TableCell>
+                    <TableCell>
+                      {e.trades < MIN_SAMPLE ? (
+                        <span className="text-warn">Insufficient (n={e.trades})</span>
+                      ) : (
+                        <span className="text-muted-foreground">n={e.trades}</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </QueryState>
       </Panel>
       <div className="grid gap-3 md:grid-cols-3">
-        {rows.map((e) => (
+        {displayedRows.map((e) => (
           <Panel key={e.id} title={`${e.name} — skipped / rejected entries`}>
             <div className="space-y-1 text-xs">
               {Object.entries(e.skipped || {}).map(([k, v]) => (

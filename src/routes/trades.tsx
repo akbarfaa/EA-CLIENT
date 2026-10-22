@@ -33,7 +33,11 @@ function Trades() {
       <PageHeader title="Trade History" sub="Positions reconstructed from deals; partial closes aggregated per position." />
       <div className="flex flex-wrap gap-2">
         <Input placeholder="Ticket…" className="h-8 w-32 text-xs" value={f.search} onChange={(e) => setF({ ...f, search: e.target.value })} />
-        {sel("ea", ["EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07"])}{sel("side", ["BUY", "SELL"])}{sel("outcome", ["win", "loss"])}{sel("source", ["live", "import"])}
+        {sel("ea", [
+          "EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07",
+          "EA01_BTC", "EA02_BTC", "EA03_BTC",
+          "EA01_USOIL", "EA02_USOIL", "EA03_USOIL"
+        ])}{sel("side", ["BUY", "SELL"])}{sel("outcome", ["win", "loss"])}{sel("source", ["live", "import"])}
       </div>
       <Panel>
         <QueryState q={q} rows={8}>

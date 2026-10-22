@@ -4,10 +4,11 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, R
 import { useApi } from "@/lib/api";
 import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
+import { cn } from "@/lib/utils";
 import { Metric, Notice, PageHeader, Panel, QueryState, SourceBadge, ago, chartAxis, fmt, pct, signCls, tooltipStyle } from "@/components/kit";
 
 export const Route = createFileRoute("/")({
-  head: () => meta("Overview", "Account balance, equity, P/L, drawdown and telemetry status for XAUUSDc EAs."),
+  head: () => meta("Overview", "Multi-asset portfolio: account balance, equity, drawdown and telemetry status for XAUUSD, BTCUSD, and USOIL EAs."),
   component: Overview,
 });
 
@@ -15,7 +16,14 @@ type Summary = ReturnType<typeof demo.summary>;
 type Eq = ReturnType<typeof demo.equity>;
 type Ev = ReturnType<typeof demo.events>[number];
 
+const XAU_EAS = ["EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07"];
+const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
+const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
+
+type AssetFilter = "ALL" | "XAU" | "BTC" | "USOIL";
+
 function Overview() {
+  const [filterAsset, setFilterAsset] = useState<AssetFilter>("ALL");
   const [filterEa, setFilterEa] = useState<string>("ALL");
   const [onlyTrades, setOnlyTrades] = useState<boolean>(false);
 
@@ -28,7 +36,11 @@ function Overview() {
 
   const rawLogs = logQ.data ?? [];
   const filteredLogs = rawLogs.filter((e) => {
-    if (filterEa !== "ALL" && e.ea !== filterEa) return false;
+    const eaTag = (e.ea || "").toUpperCase();
+    if (filterAsset === "XAU" && !XAU_EAS.includes(eaTag)) return false;
+    if (filterAsset === "BTC" && !BTC_EAS.includes(eaTag)) return false;
+    if (filterAsset === "USOIL" && !OIL_EAS.includes(eaTag)) return false;
+    if (filterEa !== "ALL" && eaTag !== filterEa) return false;
     if (onlyTrades && !["order", "order_entry", "deal", "deal_closed"].includes(e.type)) return false;
     return true;
   });
@@ -37,9 +49,132 @@ function Overview() {
     <div className="space-y-4">
       <PageHeader
         title="Overview"
-        sub={s ? `Account ${s.accountId} · ${s.currency}` : "Account summary"}
-        right={s && <div className="flex items-center gap-2 text-xs text-muted-foreground"><SourceBadge source={s.source} />Last telemetry {ago(s.lastTelemetry)}</div>}
+        sub={s ? `Account ${s.accountId} · ${s.currency}` : "Multi-asset algorithmic portfolio"}
+        right={
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs">
+              {(
+                [
+                  { id: "ALL", label: "All Assets (13)" },
+                  { id: "XAU", label: "Gold (7)" },
+                  { id: "BTC", label: "Bitcoin (3)" },
+                  { id: "USOIL", label: "Crude Oil (3)" },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setFilterAsset(tab.id);
+                    setFilterEa("ALL");
+                  }}
+                  className={cn(
+                    "rounded-xs px-2.5 py-1 text-xs font-medium transition-colors",
+                    filterAsset === tab.id
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            {s && (
+              <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+                <SourceBadge source={s.source} />
+                Last {ago(s.lastTelemetry)}
+              </div>
+            )}
+          </div>
+        }
       />
+
+      {/* 3 Asset Pillars Quick Cards */}
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+        <div
+          onClick={() => {
+            setFilterAsset(filterAsset === "XAU" ? "ALL" : "XAU");
+            setFilterEa("ALL");
+          }}
+          className={cn(
+            "cursor-pointer rounded-md border p-3 transition-all",
+            filterAsset === "XAU"
+              ? "border-gold/60 bg-gold/10 ring-1 ring-gold/40 shadow-xs"
+              : "border-border bg-card hover:border-gold/40 hover:bg-muted/30"
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-gold" />
+              <span className="font-semibold text-sm text-foreground">XAUUSD Suite</span>
+            </div>
+            <span className="num rounded-xs border border-gold/40 bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
+              7 EAs · M5
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">Exness XAUUSDc Spot Metal</div>
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">Core Strategies:</span>
+            <span className="num font-medium text-foreground">VWAP · FVG · Reclaim</span>
+          </div>
+        </div>
+
+        <div
+          onClick={() => {
+            setFilterAsset(filterAsset === "BTC" ? "ALL" : "BTC");
+            setFilterEa("ALL");
+          }}
+          className={cn(
+            "cursor-pointer rounded-md border p-3 transition-all",
+            filterAsset === "BTC"
+              ? "border-amber-500/60 bg-amber-500/10 ring-1 ring-amber-500/40 shadow-xs"
+              : "border-border bg-card hover:border-amber-500/40 hover:bg-muted/30"
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-amber-500" />
+              <span className="font-semibold text-sm text-foreground">BTCUSD Suite</span>
+            </div>
+            <span className="num rounded-xs border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+              3 EAs · M15
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">Bitcoin 24/7 Crypto Market</div>
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">Core Strategies:</span>
+            <span className="num font-medium text-foreground">Squeeze · Supertrend</span>
+          </div>
+        </div>
+
+        <div
+          onClick={() => {
+            setFilterAsset(filterAsset === "USOIL" ? "ALL" : "USOIL");
+            setFilterEa("ALL");
+          }}
+          className={cn(
+            "cursor-pointer rounded-md border p-3 transition-all",
+            filterAsset === "USOIL"
+              ? "border-emerald-500/60 bg-emerald-500/10 ring-1 ring-emerald-500/40 shadow-xs"
+              : "border-border bg-card hover:border-emerald-500/40 hover:bg-muted/30"
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-emerald-500" />
+              <span className="font-semibold text-sm text-foreground">USOIL Suite</span>
+            </div>
+            <span className="num rounded-xs border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+              3 EAs · M15
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">WTI Crude Oil Commodity</div>
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">Core Strategies:</span>
+            <span className="num font-medium text-foreground">Asian Box · EIA Guard</span>
+          </div>
+        </div>
+      </div>
+
       {stale && <Notice>Snapshot is stale — last update {ago(s!.lastTelemetry)}. Values may not reflect the current account.</Notice>}
       <QueryState q={sq} rows={4}>
         {s && (
@@ -139,15 +274,23 @@ function Overview() {
         }
         right={
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center rounded-sm border bg-background p-0.5 text-[10px]">
-              {["ALL", "EA01", "EA02", "EA03", "EA04", "EA05", "EA06", "EA07"].map((ea) => (
+            <div className="flex items-center rounded-sm border bg-card p-0.5 text-[10px]">
+              {(
+                filterAsset === "XAU"
+                  ? ["ALL", ...XAU_EAS]
+                  : filterAsset === "BTC"
+                  ? ["ALL", ...BTC_EAS]
+                  : filterAsset === "USOIL"
+                  ? ["ALL", ...OIL_EAS]
+                  : ["ALL", ...XAU_EAS, ...BTC_EAS, ...OIL_EAS]
+              ).map((ea) => (
                 <button
                   key={ea}
                   onClick={() => setFilterEa(ea)}
                   className={`rounded-xs px-2 py-0.5 font-medium transition-colors ${
                     filterEa === ea
                       ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   {ea}
@@ -159,7 +302,7 @@ function Overview() {
               className={`rounded-sm border px-2 py-0.5 text-[10px] font-medium transition-colors ${
                 onlyTrades
                   ? "border-profit/40 bg-profit/15 text-profit"
-                  : "border-border bg-background text-muted-foreground hover:text-foreground"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               Trade Sinyal Saja
@@ -182,6 +325,20 @@ function Overview() {
                 const isFail = e.status === "fail" || e.status === "error";
                 const isTrade = ["order", "order_entry", "deal", "deal_closed"].includes(e.type);
 
+                const getEaColor = (eaName: string) => {
+                  const u = (eaName || "").toUpperCase();
+                  if (u === "EA01") return "text-chart-5";
+                  if (u === "EA02") return "text-gold";
+                  if (u === "EA03") return "text-chart-1";
+                  if (u === "EA04") return "text-emerald-600 dark:text-emerald-400";
+                  if (u === "EA05") return "text-cyan-600 dark:text-cyan-400";
+                  if (u === "EA06") return "text-purple-600 dark:text-purple-400";
+                  if (u === "EA07") return "text-rose-600 dark:text-rose-400";
+                  if (u.includes("BTC")) return "text-amber-600 dark:text-amber-400";
+                  if (u.includes("USOIL") || u.includes("OIL")) return "text-emerald-600 dark:text-emerald-400";
+                  return "text-foreground";
+                };
+
                 return (
                   <div
                     key={e.id}
@@ -194,25 +351,7 @@ function Overview() {
                     <span className="num text-[11px] text-muted-foreground shrink-0">
                       [{new Date(e.t).toLocaleTimeString()}]
                     </span>
-                    <span
-                      className={`num shrink-0 font-bold ${
-                        e.ea === "EA01"
-                          ? "text-chart-5"
-                          : e.ea === "EA02"
-                          ? "text-gold"
-                          : e.ea === "EA03"
-                          ? "text-chart-1"
-                          : e.ea === "EA04"
-                          ? "text-emerald-400"
-                          : e.ea === "EA05"
-                          ? "text-cyan-400"
-                          : e.ea === "EA06"
-                          ? "text-purple-400"
-                          : e.ea === "EA07"
-                          ? "text-rose-400"
-                          : "text-foreground"
-                      }`}
-                    >
+                    <span className={cn("num shrink-0 font-bold", getEaColor(e.ea))}>
                       [{e.ea}]
                     </span>
                     <span
