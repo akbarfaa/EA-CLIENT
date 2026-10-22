@@ -84,10 +84,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "XAU EA Hub" },
+      { name: "apple-mobile-web-app-title", content: "Multi Asset Terminal" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "XAUUSDc Observability Terminal" },
-      { name: "description", content: "Realtime Telemetry, Observability and Trade Push Notifications for MT5 Expert Advisors" },
+      { property: "og:title", content: "Multi Asset Terminal" },
+      { name: "description", content: "Multi-Asset Observability, Telemetry, and Realtime Trade Push Notifications for MT5 Expert Advisors (Gold, Bitcoin, Crude Oil)" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [

@@ -1,5 +1,5 @@
-// Service Worker for XAUUSDc Observability Terminal & Push Notifications
-const CACHE_NAME = "xau-ea-v1";
+// Service Worker for Multi Asset Terminal & Push Notifications
+const CACHE_NAME = "multi-asset-terminal-v2";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -15,7 +15,7 @@ self.addEventListener("push", (event) => {
 
   try {
     const data = event.data.json();
-    const title = data.title || "XAUUSD EA Notification";
+    const title = data.title || "Multi Asset Terminal Notification";
     const options = {
       body: data.body || "",
       icon: "/logo.svg",

@@ -1,7 +1,7 @@
 {
-  "name": "XAUUSDc Observability Terminal",
-  "short_name": "XAU EA Hub",
-  "description": "Live Observability, Telemetry, and Realtime Trade Push Notifications for MT5 Expert Advisors",
+  "name": "Multi Asset Terminal",
+  "short_name": "Multi Asset Terminal",
+  "description": "Multi-Asset Live Observability, Telemetry, and Realtime Trade Push Notifications for MT5 Expert Advisors (Gold, Bitcoin, Crude Oil)",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
