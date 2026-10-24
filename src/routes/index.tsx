@@ -6,6 +6,9 @@ import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
 import { cn } from "@/lib/utils";
 import { Metric, Notice, PageHeader, Panel, QueryState, SourceBadge, ago, chartAxis, fmt, pct, signCls, tooltipStyle } from "@/components/kit";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { ReportModal } from "@/components/ReportModal";
 
 export const Route = createFileRoute("/")({
   head: () => meta("Overview", "Multi-asset portfolio: account balance, equity, drawdown and telemetry status for XAUUSD, BTCUSD, and USOIL EAs."),
@@ -26,6 +29,7 @@ function Overview() {
   const [filterAsset, setFilterAsset] = useState<AssetFilter>("ALL");
   const [filterEa, setFilterEa] = useState<string>("ALL");
   const [onlyTrades, setOnlyTrades] = useState<boolean>(false);
+  const [reportOpen, setReportOpen] = useState<boolean>(false);
 
   const sq = useApi<Summary>("/accounts/default/summary", "summary", 3_000);
   const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity", 15_000);
@@ -78,6 +82,15 @@ function Overview() {
                 </button>
               ))}
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setReportOpen(true)}
+              className="h-8 border-amber-500/40 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:text-amber-400 gap-1.5 text-xs font-semibold shadow-xs"
+            >
+              <Download className="size-3.5" />
+              <span>Download PDF</span>
+            </Button>
             {s && (
               <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
                 <SourceBadge source={s.source} />
@@ -377,6 +390,12 @@ function Overview() {
       </Panel>
 
       {s && <p className="text-[11px] text-muted-foreground">Max observed drawdown: <span className="num">{fmt(s.maxDrawdownPct)}%</span>. Metrics exclude deposits, withdrawals and balance adjustments.</p>}
+
+      <ReportModal
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        initialAsset={filterAsset}
+      />
     </div>
   );
 }

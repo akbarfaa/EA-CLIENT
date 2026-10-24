@@ -6,6 +6,7 @@ import { meta } from "@/lib/meta";
 import { HealthBadge, PageHeader, Panel, QueryState, ago, fmt, pct, signCls } from "@/components/kit";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { getAsset, formatEaDisplayName } from "@/lib/ea-utils";
 
 export const Route = createFileRoute("/eas")({
   head: () => meta("EA Leaderboard", "Compare EA instances by P/L, profit factor, drawdown, sample size and health."),
@@ -38,35 +39,6 @@ interface TelemetryEventItem {
   msg: string;
 }
 
-const getAsset = (name: string, strategy: string = "") => {
-  const str = (name + " " + strategy).toUpperCase();
-  if (str.includes("BTC")) return "BTC";
-  if (str.includes("USOIL") || str.includes("OIL") || str.includes("CRUDE")) return "USOIL";
-  return "XAU";
-};
-
-const getEaCode = (id: string, name: string = "") => {
-  const nameMatch = name.match(/^(EA\d+(?:V\d+)?)/i);
-  const matchedName = nameMatch?.[1];
-  if (matchedName) return matchedName.toUpperCase();
-
-  const idUpper = id.toUpperCase();
-  if (idUpper.startsWith("EA02V2")) return "EA02V2";
-  const numMatch = idUpper.match(/EA(\d+)/i);
-  const matchedNum = numMatch?.[1];
-  if (matchedNum) return `EA${matchedNum.padStart(2, "0")}`;
-  return idUpper;
-};
-
-const formatEaDisplayName = (id: string, name: string) => {
-  const code = getEaCode(id, name);
-  const cleanName = name.replace(new RegExp(`^${code}_?`, "i"), "");
-  return {
-    code,
-    cleanName: cleanName || name,
-    fullName: `${code}_${cleanName || name}`,
-  };
-};
 
 function Eas() {
   const q = useApi<E[]>("/eas", "eas", 3_000);
