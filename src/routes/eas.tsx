@@ -47,12 +47,14 @@ const getAsset = (name: string, strategy: string = "") => {
 
 const getEaCode = (id: string, name: string = "") => {
   const nameMatch = name.match(/^(EA\d+(?:V\d+)?)/i);
-  if (nameMatch) return nameMatch[1].toUpperCase();
+  const matchedName = nameMatch?.[1];
+  if (matchedName) return matchedName.toUpperCase();
 
   const idUpper = id.toUpperCase();
   if (idUpper.startsWith("EA02V2")) return "EA02V2";
   const numMatch = idUpper.match(/EA(\d+)/i);
-  if (numMatch) return `EA${numMatch[1].padStart(2, "0")}`;
+  const matchedNum = numMatch?.[1];
+  if (matchedNum) return `EA${matchedNum.padStart(2, "0")}`;
   return idUpper;
 };
 

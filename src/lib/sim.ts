@@ -24,6 +24,6 @@ export function monteCarlo(p: SimInput, rand: () => number = Math.random) {
     if (k < 12) samples.push(path);
   }
   const keys = samples.map((_, i) => `p${i}`);
-  const chart = Array.from({ length: n + 1 }, (_, i) => Object.fromEntries([["i", i], ...samples.map((s, j) => [`p${j}`, +s[i].toFixed(2)])]));
+  const chart = Array.from({ length: n + 1 }, (_, i) => Object.fromEntries([["i", i], ...samples.map((s, j) => [`p${j}`, +(s[i] ?? 0).toFixed(2)])]));
   return { p5: q(ends, 0.05), p50: q(ends, 0.5), p95: q(ends, 0.95), medDd: q(dds, 0.5), streak95: q(streaks, 0.95), ruin: ruin / paths, chart, keys };
 }

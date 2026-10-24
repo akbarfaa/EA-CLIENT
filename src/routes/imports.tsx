@@ -22,12 +22,15 @@ function Imports() {
     if (!f) return;
     setFile(f);
     const text = await f.slice(0, 20000).text();
-    const delim = text.includes("\t") ? "\t" : text.split("\n")[0].includes(";") ? ";" : ",";
+    const delim = text.includes("\t") ? "\t" : text.split("\n")[0]?.includes(";") ? ";" : ",";
     setPreview(text.split(/\r?\n/).filter(Boolean).slice(0, 8).map((l) => l.split(delim)));
   };
   const submit = async () => {
     if (!file) return;
-    if (isDemo()) return toast.info("Demo mode: file not sent. Configure the API in Settings.");
+    if (isDemo()) {
+      toast.info("Demo mode: file not sent. Configure the API in Settings.");
+      return;
+    }
     try {
       const content = await file.text();
       await api("/imports", { method: "POST", body: JSON.stringify({ fileName: file.name, content }) });
