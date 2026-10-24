@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { toJpeg } from "html-to-image";
 import { Download, Printer, X, FileText, CheckCircle2, ShieldCheck, TrendingUp, Layers, ChevronRight, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -202,15 +202,12 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
 
         setGenerationStep(`Merender Halaman ${i + 1} dari ${totalPages}...`);
 
-        const canvas = await html2canvas(pageEl, {
-          scale: 2, // High resolution
-          useCORS: true,
-          logging: false,
+        const imgData = await toJpeg(pageEl, {
+          quality: 0.95,
+          pixelRatio: 2,
           backgroundColor: "#0b0f19",
-          windowWidth: 794,
+          cacheBust: true,
         });
-
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
         if (i > 0) {
           pdf.addPage("a4", "portrait");
         }
