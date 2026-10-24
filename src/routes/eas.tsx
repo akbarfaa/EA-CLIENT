@@ -45,6 +45,27 @@ const getAsset = (name: string, strategy: string = "") => {
   return "XAU";
 };
 
+const getEaCode = (id: string, name: string = "") => {
+  const nameMatch = name.match(/^(EA\d+(?:V\d+)?)/i);
+  if (nameMatch) return nameMatch[1].toUpperCase();
+
+  const idUpper = id.toUpperCase();
+  if (idUpper.startsWith("EA02V2")) return "EA02V2";
+  const numMatch = idUpper.match(/EA(\d+)/i);
+  if (numMatch) return `EA${numMatch[1].padStart(2, "0")}`;
+  return idUpper;
+};
+
+const formatEaDisplayName = (id: string, name: string) => {
+  const code = getEaCode(id, name);
+  const cleanName = name.replace(new RegExp(`^${code}_?`, "i"), "");
+  return {
+    code,
+    cleanName: cleanName || name,
+    fullName: `${code}_${cleanName || name}`,
+  };
+};
+
 function Eas() {
   const q = useApi<E[]>("/eas", "eas", 3_000);
   const eventsQ = useApi<TelemetryEventItem[]>("/telemetry/events?limit=100", "events", 3_000);
@@ -220,11 +241,13 @@ function Eas() {
             <TableBody className="num text-xs">
               {displayedRows.map((e) => {
                 const asset = getAsset(e.name, e.strategy);
+                const { code, cleanName } = formatEaDisplayName(e.id, e.name);
                 return (
                   <TableRow key={e.id}>
                     <TableCell>
                       <div className="flex items-center gap-1.5 font-sans font-medium">
-                        <span>{e.name}</span>
+                        <span className="font-mono text-xs font-bold text-primary">{code}_</span>
+                        <span>{cleanName}</span>
                         <span className="text-muted-foreground font-normal">v{e.version}</span>
                         {asset === "XAU" && (
                           <span className="num rounded-xs border border-gold/40 bg-gold/10 px-1 py-0.2 text-[9px] font-semibold text-gold">
@@ -276,8 +299,10 @@ function Eas() {
         </QueryState>
       </Panel>
       <div className="grid gap-3 md:grid-cols-3">
-        {displayedRows.map((e) => (
-          <Panel key={e.id} title={`${e.name} — skipped / rejected entries`}>
+        {displayedRows.map((e) => {
+          const { fullName } = formatEaDisplayName(e.id, e.name);
+          return (
+            <Panel key={e.id} title={`${fullName} — skipped / rejected entries`}>
             <div className="space-y-1 text-xs">
               {Object.entries(e.skipped || {}).map(([k, v]) => (
                 <div key={k} className="flex justify-between">
@@ -293,7 +318,8 @@ function Eas() {
               </div>
             </div>
           </Panel>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
