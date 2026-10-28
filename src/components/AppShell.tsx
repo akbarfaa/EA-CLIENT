@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn } from "lucide-react";
-import { getSettings } from "@/lib/api";
+import { getSettings, getActiveAccount, setActiveAccount, type ActiveAccount } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 import { NotificationManager } from "./NotificationManager";
@@ -26,6 +26,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [dark, setDark] = useState(true);
   const [lang, setLang] = useState<"id" | "en">("id");
   const [s, setS] = useState({ demo: true, apiBase: "", token: "" });
+  const [activeAcc, setActiveAcc] = useState<ActiveAccount>(getActiveAccount());
 
   useEffect(() => {
     const d = localStorage.getItem("xau.theme") !== "light";
@@ -34,7 +35,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     const sync = () => setS(getSettings());
     sync();
     window.addEventListener("xau-settings", sync);
-    return () => window.removeEventListener("xau-settings", sync);
+
+    const onAccChange = (e: any) => {
+      setActiveAcc(e.detail || getActiveAccount());
+    };
+    window.addEventListener("ea-account-changed", onAccChange);
+
+    return () => {
+      window.removeEventListener("xau-settings", sync);
+      window.removeEventListener("ea-account-changed", onAccChange);
+    };
   }, []);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -76,8 +86,44 @@ export function AppShell({ children }: { children: ReactNode }) {
           {s.demo ? (
             <span className="num rounded-sm border border-warn/50 bg-warn/10 px-2 py-0.5 text-[10px] uppercase text-warn">Demo — simulated data</span>
           ) : (
-            <span className="num truncate text-[11px] text-muted-foreground">API: {s.apiBase || "not configured"}</span>
+            <span className="num truncate text-[11px] text-muted-foreground hidden sm:inline">API: {s.apiBase || "not configured"}</span>
           )}
+
+          {/* Account Switcher: Real vs Demo */}
+          <div className="flex items-center rounded-sm border border-border bg-card p-0.5 text-xs shadow-xs">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveAccount("real");
+                setActiveAcc("real");
+              }}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer",
+                activeAcc === "real"
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              )}
+            >
+              <span className={cn("size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
+              <span>REAL ($100)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveAccount("demo");
+                setActiveAcc("demo");
+              }}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer",
+                activeAcc === "demo"
+                  ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              )}
+            >
+              <span className={cn("size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
+              <span>DEMO</span>
+            </button>
+          </div>
           <div className="ml-auto flex items-center gap-1.5">
             <NotificationManager />
             <button className="rounded-sm px-2 py-1 text-xs hover:bg-accent" onClick={() => { const l = lang === "id" ? "en" : "id"; setLang(l); localStorage.setItem("xau.lang", l); }}>{lang.toUpperCase()}</button>

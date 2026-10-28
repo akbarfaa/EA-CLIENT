@@ -32,10 +32,42 @@ export class ApiError extends Error {
   constructor(public status: number, public code: string, msg: string) { super(msg); }
 }
 
+export type ActiveAccount = "real" | "demo";
+
+export function getActiveAccount(): ActiveAccount {
+  if (typeof window === "undefined") return "real";
+  const acc = localStorage.getItem("ea.active_account");
+  return acc === "demo" ? "demo" : "real";
+}
+
+export function setActiveAccount(acc: ActiveAccount) {
+  localStorage.setItem("ea.active_account", acc);
+  window.dispatchEvent(new CustomEvent("ea-account-changed", { detail: acc }));
+}
+
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const s = getSettings();
   if (!s.apiBase) throw new ApiError(0, "NO_API", "API base URL not configured");
-  const res = await fetch(`${s.apiBase.replace(/\/$/, "")}/api/v1${path}`, {
+  
+  const currentAcc = getActiveAccount();
+  
+  // Transform path dynamically to target the active account
+  let resolvedPath = path.replace("/accounts/default/", `/accounts/${currentAcc}/`);
+  
+  // Append account_id filter for EAs and events if not already specified
+  if (resolvedPath === "/eas" || resolvedPath.startsWith("/eas?")) {
+    const sep = resolvedPath.includes("?") ? "&" : "?";
+    if (!resolvedPath.includes("account_id=")) {
+      resolvedPath = `${resolvedPath}${sep}account_id=${currentAcc}`;
+    }
+  } else if (resolvedPath === "/telemetry/events" || resolvedPath.startsWith("/telemetry/events?")) {
+    const sep = resolvedPath.includes("?") ? "&" : "?";
+    if (!resolvedPath.includes("account_id=")) {
+      resolvedPath = `${resolvedPath}${sep}account_id=${currentAcc}`;
+    }
+  }
+
+  const res = await fetch(`${s.apiBase.replace(/\/$/, "")}/api/v1${resolvedPath}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -51,7 +83,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 /** Fetch from backend, or return clearly-labelled simulated demo data when demo mode is on. */
 export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: number) {
   return useQuery<T>({
-    queryKey: ["api", path, getSettings().demo],
+    queryKey: ["api", path, getSettings().demo, getActiveAccount()],
     queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path)),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
