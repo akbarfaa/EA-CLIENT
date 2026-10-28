@@ -65,6 +65,11 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     if (!resolvedPath.includes("account_id=")) {
       resolvedPath = `${resolvedPath}${sep}account_id=${currentAcc}`;
     }
+  } else if (resolvedPath === "/trades" || resolvedPath.startsWith("/trades?")) {
+    const sep = resolvedPath.includes("?") ? "&" : "?";
+    if (!resolvedPath.includes("account_id=")) {
+      resolvedPath = `${resolvedPath}${sep}account_id=${currentAcc}`;
+    }
   }
 
   const res = await fetch(`${s.apiBase.replace(/\/$/, "")}/api/v1${resolvedPath}`, {
