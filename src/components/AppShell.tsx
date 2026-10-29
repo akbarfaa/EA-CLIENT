@@ -57,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
-      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r bg-sidebar md:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden h-screen w-56 flex-col border-r bg-sidebar md:flex">
         <div className="flex items-center gap-2.5 border-b px-4 py-3">
           <img src="/logo.svg" alt="EA Advisor" className="size-8 rounded-sm object-contain" />
           <div>
@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="border-t p-3 text-[10px] text-muted-foreground">Observational only — no trade execution.</div>
       </aside>
-      <div className="flex min-w-0 max-w-full flex-1 flex-col overflow-x-hidden">
+      <div className="flex min-w-0 max-w-full flex-1 flex-col overflow-x-hidden md:pl-56">
         <header className="sticky top-0 z-20 flex h-12 w-full max-w-full items-center justify-between gap-1.5 sm:gap-3 border-b bg-background/95 backdrop-blur px-2.5 sm:px-4">
           <div className="flex items-center gap-2 min-w-0">
             <Link to="/" className="flex items-center gap-1.5 shrink-0 md:hidden">
