@@ -33,34 +33,49 @@ export class ApiError extends Error {
 
 export type ActiveAccount = "real" | "demo";
 
+let currentActiveAccount: ActiveAccount =
+  typeof window !== "undefined" && localStorage.getItem("ea.active_account") === "demo"
+    ? "demo"
+    : "real";
+
+const accountListeners = new Set<(acc: ActiveAccount) => void>();
+
 export function getActiveAccount(): ActiveAccount {
   if (typeof window === "undefined") return "real";
-  const acc = localStorage.getItem("ea.active_account");
-  return acc === "demo" ? "demo" : "real";
+  return currentActiveAccount;
 }
 
 export function useActiveAccount(): ActiveAccount {
   const [acc, setAcc] = useState<ActiveAccount>(getActiveAccount);
+
   useEffect(() => {
-    const handler = (e: any) => {
-      setAcc(e.detail || getActiveAccount());
+    const handler = (newAcc: ActiveAccount) => setAcc(newAcc);
+    accountListeners.add(handler);
+    setAcc(getActiveAccount());
+    return () => {
+      accountListeners.delete(handler);
     };
-    window.addEventListener("ea-account-changed", handler);
-    return () => window.removeEventListener("ea-account-changed", handler);
   }, []);
+
   return acc;
 }
 
 export function setActiveAccount(acc: ActiveAccount) {
-  localStorage.setItem("ea.active_account", acc);
-  window.dispatchEvent(new CustomEvent("ea-account-changed", { detail: acc }));
+  currentActiveAccount = acc;
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("ea.active_account", acc);
+    } catch {}
+    window.dispatchEvent(new CustomEvent("ea-account-changed", { detail: acc }));
+  }
+  accountListeners.forEach((fn) => fn(acc));
 }
 
-export async function api<T>(path: string, init?: RequestInit): Promise<T> {
+export async function api<T>(path: string, init?: RequestInit, accountOverride?: ActiveAccount): Promise<T> {
   const s = getSettings();
   if (!s.apiBase) throw new ApiError(0, "NO_API", "API base URL not configured");
   
-  const currentAcc = getActiveAccount();
+  const currentAcc = accountOverride || getActiveAccount();
   
   // Transform path dynamically to target the active account
   let resolvedPath = path.replace("/accounts/default/", `/accounts/${currentAcc}/`);
@@ -101,7 +116,7 @@ export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: 
   const activeAcc = useActiveAccount();
   return useQuery<T>({
     queryKey: ["api", path, getSettings().demo, activeAcc],
-    queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path)),
+    queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path, undefined, activeAcc)),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
     staleTime: 1_000,

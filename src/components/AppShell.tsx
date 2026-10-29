@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn, Loader2 } from "lucide-react";
-import { getSettings, getActiveAccount, setActiveAccount, type ActiveAccount } from "@/lib/api";
+import { getSettings, getActiveAccount, setActiveAccount, useActiveAccount, type ActiveAccount } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 import { NotificationManager } from "./NotificationManager";
@@ -29,20 +29,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isFetching = useIsFetching({ queryKey: ["api"] });
   const [dark, setDark] = useState(true);
   const [lang, setLang] = useState<"id" | "en">("id");
-  const [s, setS] = useState({ demo: true, apiBase: "", token: "" });
-  const [activeAcc, setActiveAcc] = useState<ActiveAccount>(getActiveAccount());
-  const [isSwitching, setIsSwitching] = useState(false);
+  const [s, setS] = useState({ demo: false, apiBase: "", token: "" });
+  const activeAcc = useActiveAccount();
 
-  const handleSwitch = async (target: ActiveAccount) => {
-    if (target === activeAcc && !isSwitching) return;
-    setIsSwitching(true);
+  const handleSwitch = (target: ActiveAccount) => {
     setActiveAccount(target);
-    setActiveAcc(target);
-    try {
-      await queryClient.invalidateQueries({ queryKey: ["api"] });
-    } finally {
-      setTimeout(() => setIsSwitching(false), 350);
-    }
+    queryClient.invalidateQueries({ queryKey: ["api"] });
   };
 
   useEffect(() => {
@@ -53,14 +45,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     sync();
     window.addEventListener("xau-settings", sync);
 
-    const onAccChange = (e: any) => {
-      setActiveAcc(e.detail || getActiveAccount());
-    };
-    window.addEventListener("ea-account-changed", onAccChange);
-
     return () => {
       window.removeEventListener("xau-settings", sync);
-      window.removeEventListener("ea-account-changed", onAccChange);
     };
   }, []);
   useEffect(() => {
@@ -111,40 +97,28 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center rounded-sm border border-border bg-card p-0.5 text-xs shadow-xs shrink-0">
             <button
               type="button"
-              disabled={isSwitching}
               onClick={() => handleSwitch("real")}
               className={cn(
                 "flex items-center gap-1 sm:gap-1.5 rounded-xs px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-all cursor-pointer select-none",
                 activeAcc === "real"
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-                isSwitching && "opacity-80 cursor-wait"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               )}
             >
-              {isSwitching && activeAcc === "real" ? (
-                <Loader2 className="size-2.5 sm:size-3 animate-spin text-emerald-400" />
-              ) : (
-                <span className={cn("size-1.5 sm:size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
-              )}
+              <span className={cn("size-1.5 sm:size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
               <span>REAL<span className="hidden sm:inline"> ($100)</span></span>
             </button>
             <button
               type="button"
-              disabled={isSwitching}
               onClick={() => handleSwitch("demo")}
               className={cn(
                 "flex items-center gap-1 sm:gap-1.5 rounded-xs px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-all cursor-pointer select-none",
                 activeAcc === "demo"
                   ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-                isSwitching && "opacity-80 cursor-wait"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               )}
             >
-              {isSwitching && activeAcc === "demo" ? (
-                <Loader2 className="size-2.5 sm:size-3 animate-spin text-cyan-400" />
-              ) : (
-                <span className={cn("size-1.5 sm:size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
-              )}
+              <span className={cn("size-1.5 sm:size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
               <span>DEMO</span>
             </button>
             {isFetching > 0 && (
