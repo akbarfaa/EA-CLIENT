@@ -1,5 +1,4 @@
-// API client for the VPS Fastify backend. No secrets are stored here:
-// the API base URL is public; the session token comes from /auth/login.
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { demo } from "./demo";
 
@@ -38,6 +37,18 @@ export function getActiveAccount(): ActiveAccount {
   if (typeof window === "undefined") return "real";
   const acc = localStorage.getItem("ea.active_account");
   return acc === "demo" ? "demo" : "real";
+}
+
+export function useActiveAccount(): ActiveAccount {
+  const [acc, setAcc] = useState<ActiveAccount>(getActiveAccount);
+  useEffect(() => {
+    const handler = (e: any) => {
+      setAcc(e.detail || getActiveAccount());
+    };
+    window.addEventListener("ea-account-changed", handler);
+    return () => window.removeEventListener("ea-account-changed", handler);
+  }, []);
+  return acc;
 }
 
 export function setActiveAccount(acc: ActiveAccount) {
@@ -87,12 +98,13 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 /** Fetch from backend, or return clearly-labelled simulated demo data when demo mode is on. */
 export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: number) {
+  const activeAcc = useActiveAccount();
   return useQuery<T>({
-    queryKey: ["api", path, getSettings().demo, getActiveAccount()],
+    queryKey: ["api", path, getSettings().demo, activeAcc],
     queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path)),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
-    staleTime: 1_500,
+    staleTime: 1_000,
   });
 }
 

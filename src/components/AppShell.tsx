@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn } from "lucide-react";
+import { useQueryClient, useIsFetching } from "@tanstack/react-query";
+import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn, Loader2 } from "lucide-react";
 import { getSettings, getActiveAccount, setActiveAccount, type ActiveAccount } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -23,10 +24,25 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching({ queryKey: ["api"] });
   const [dark, setDark] = useState(true);
   const [lang, setLang] = useState<"id" | "en">("id");
   const [s, setS] = useState({ demo: true, apiBase: "", token: "" });
   const [activeAcc, setActiveAcc] = useState<ActiveAccount>(getActiveAccount());
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  const handleSwitch = async (target: ActiveAccount) => {
+    if (target === activeAcc && !isSwitching) return;
+    setIsSwitching(true);
+    setActiveAccount(target);
+    setActiveAcc(target);
+    try {
+      await queryClient.invalidateQueries({ queryKey: ["api"] });
+    } finally {
+      setTimeout(() => setIsSwitching(false), 350);
+    }
+  };
 
   useEffect(() => {
     const d = localStorage.getItem("xau.theme") !== "light";
@@ -93,36 +109,47 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center rounded-sm border border-border bg-card p-0.5 text-xs shadow-xs">
             <button
               type="button"
-              onClick={() => {
-                setActiveAccount("real");
-                setActiveAcc("real");
-              }}
+              disabled={isSwitching}
+              onClick={() => handleSwitch("real")}
               className={cn(
-                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer",
+                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer select-none",
                 activeAcc === "real"
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                isSwitching && "opacity-80 cursor-wait"
               )}
             >
-              <span className={cn("size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
+              {isSwitching && activeAcc === "real" ? (
+                <Loader2 className="size-3 animate-spin text-emerald-400" />
+              ) : (
+                <span className={cn("size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
+              )}
               <span>REAL ($100)</span>
             </button>
             <button
               type="button"
-              onClick={() => {
-                setActiveAccount("demo");
-                setActiveAcc("demo");
-              }}
+              disabled={isSwitching}
+              onClick={() => handleSwitch("demo")}
               className={cn(
-                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer",
+                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer select-none",
                 activeAcc === "demo"
                   ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                isSwitching && "opacity-80 cursor-wait"
               )}
             >
-              <span className={cn("size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
+              {isSwitching && activeAcc === "demo" ? (
+                <Loader2 className="size-3 animate-spin text-cyan-400" />
+              ) : (
+                <span className={cn("size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
+              )}
               <span>DEMO</span>
             </button>
+            {isFetching > 0 && (
+              <span title="Syncing data..." className="flex items-center px-1 text-muted-foreground/60 animate-pulse">
+                <Loader2 className="size-2.5 animate-spin" />
+              </span>
+            )}
           </div>
           <div className="ml-auto flex items-center gap-1.5">
             <NotificationManager />
