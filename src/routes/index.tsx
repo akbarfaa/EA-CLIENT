@@ -19,7 +19,7 @@ type Summary = ReturnType<typeof demo.summary>;
 type Eq = ReturnType<typeof demo.equity>;
 type Ev = ReturnType<typeof demo.events>[number];
 
-const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07"];
+const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER"];
 const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
 const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
 

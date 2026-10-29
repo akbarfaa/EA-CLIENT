@@ -1,4 +1,4 @@
-export const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07"];
+export const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER"];
 export const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
 export const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
 
