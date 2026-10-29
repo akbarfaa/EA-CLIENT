@@ -18,6 +18,8 @@ export const getEaCode = (id: string, name: string = ""): string => {
 
   const idUpper = id.toUpperCase();
   if (idUpper.startsWith("EA02V2")) return "EA02V2";
+  if (idUpper.includes("TICKSPEED")) return "EA08";
+  if (idUpper.includes("SPIKEHUNTER")) return "EA09";
   const numMatch = idUpper.match(/EA(\d+)/i);
   const matchedNum = numMatch?.[1];
   if (matchedNum) return `EA${matchedNum.padStart(2, "0")}`;

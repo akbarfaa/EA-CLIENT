@@ -59,8 +59,8 @@ function Overview() {
             <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">
               {(
                 [
-                  { id: "ALL", label: "All (14)", full: "All Assets (14)" },
-                  { id: "XAU", label: "Gold (8)", full: "Gold (8)" },
+                  { id: "ALL", label: "All (16)", full: "All Assets (16)" },
+                  { id: "XAU", label: "Gold (10)", full: "Gold (10)" },
                   { id: "BTC", label: "BTC (3)", full: "Bitcoin (3)" },
                   { id: "USOIL", label: "Oil (3)", full: "Crude Oil (3)" },
                 ] as const
