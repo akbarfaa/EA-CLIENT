@@ -21,23 +21,23 @@ export const ago = (iso?: string) => {
 
 export function Panel({ title, right, children, className }: { title?: ReactNode; right?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-md border bg-card", className)}>
+    <section className={cn("rounded-md border bg-card min-w-0 max-w-full overflow-hidden", className)}>
       {title && (
-        <header className="flex items-center justify-between border-b px-3 py-2">
-          <h2 className="label-xs font-medium">{title}</h2>
-          {right}
+        <header className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 max-w-full">
+          <h2 className="label-xs font-medium min-w-0 truncate">{title}</h2>
+          {right && <div className="max-w-full overflow-x-auto no-scrollbar shrink-0">{right}</div>}
         </header>
       )}
-      <div className="p-3">{children}</div>
+      <div className="p-2.5 sm:p-3 min-w-0 max-w-full overflow-hidden">{children}</div>
     </section>
   );
 }
 
 export function Metric({ label, value, basis, tone, unit }: { label: string; value: ReactNode; basis?: string; tone?: string; unit?: string }) {
   return (
-    <div className="rounded-md border bg-card px-3 py-2.5" title={basis}>
-      <div className="label-xs">{label}</div>
-      <div className={cn("num mt-1 text-lg font-semibold", tone)}>
+    <div className="rounded-md border bg-card px-2.5 py-2 sm:px-3 sm:py-2.5 min-w-0 overflow-hidden" title={basis}>
+      <div className="label-xs truncate">{label}</div>
+      <div className={cn("num mt-1 text-base sm:text-lg font-semibold truncate", tone)}>
         {value}
         {unit && <span className="ml-1 text-xs font-normal text-muted-foreground">{unit}</span>}
       </div>
@@ -90,12 +90,12 @@ export function QueryState({ q, children, rows = 3 }: { q: { isLoading: boolean;
 
 export function PageHeader({ title, sub, right }: { title: string; sub?: string; right?: ReactNode }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-        {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
+    <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2 max-w-full min-w-0">
+      <div className="min-w-0 flex-1">
+        <h1 className="text-lg sm:text-xl font-semibold tracking-tight truncate">{title}</h1>
+        {sub && <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{sub}</p>}
       </div>
-      {right}
+      {right && <div className="max-w-full overflow-x-auto no-scrollbar shrink-0">{right}</div>}
     </div>
   );
 }

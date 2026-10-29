@@ -209,11 +209,11 @@ function Positions() {
           {rows.length === 0 ? (
             <p className="text-sm text-muted-foreground">No open positions reported.</p>
           ) : (
-            <Table>
+            <Table className="min-w-[750px]">
               <TableHeader>
                 <TableRow>
                   {["Ticket", "Symbol", "Side", "Vol", "Entry", "Price", "SL", "TP", "P/L", "Age", "EA / Magic", "Risk→SL"].map((h) => (
-                    <TableHead key={h} className="label-xs">
+                    <TableHead key={h} className="label-xs whitespace-nowrap">
                       {h}
                     </TableHead>
                   ))}

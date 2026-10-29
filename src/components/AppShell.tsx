@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn, Loader2 } from "lucide-react";
@@ -24,6 +24,7 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ queryKey: ["api"] });
   const [dark, setDark] = useState(true);
@@ -69,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (path === "/login") return <>{children}</>;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
       <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r bg-sidebar md:flex">
         <div className="flex items-center gap-2.5 border-b px-4 py-3">
           <img src="/logo.svg" alt="EA Advisor" className="size-8 rounded-sm object-contain" />
@@ -91,28 +92,29 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="border-t p-3 text-[10px] text-muted-foreground">Observational only — no trade execution.</div>
       </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-11 items-center gap-3 border-b bg-background/95 px-4">
-          <Link to="/" className="flex items-center gap-2 md:hidden">
-            <img src="/logo.svg" alt="EA Advisor" className="size-6 object-contain" />
-          </Link>
-          <select className="rounded-sm border bg-card px-2 py-1 text-xs md:hidden" value={path} onChange={(e) => (window.location.href = e.target.value)}>
-            {NAV.map((n) => <option key={n.to} value={n.to}>{n[lang]}</option>)}
-          </select>
-          {s.demo ? (
-            <span className="num rounded-sm border border-warn/50 bg-warn/10 px-2 py-0.5 text-[10px] uppercase text-warn">Demo — simulated data</span>
-          ) : (
-            <span className="num truncate text-[11px] text-muted-foreground hidden sm:inline">API: {s.apiBase || "not configured"}</span>
-          )}
+      <div className="flex min-w-0 max-w-full flex-1 flex-col overflow-x-hidden">
+        <header className="sticky top-0 z-20 flex h-12 w-full max-w-full items-center justify-between gap-1.5 sm:gap-3 border-b bg-background/95 backdrop-blur px-2.5 sm:px-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <Link to="/" className="flex items-center gap-1.5 shrink-0 md:hidden">
+              <img src="/logo.svg" alt="EA Advisor" className="size-6 object-contain" />
+            </Link>
+            <select
+              className="rounded-sm border bg-card px-1.5 py-1 text-xs md:hidden max-w-[110px] sm:max-w-[140px] truncate"
+              value={path}
+              onChange={(e) => navigate({ to: e.target.value })}
+            >
+              {NAV.map((n) => <option key={n.to} value={n.to}>{n[lang]}</option>)}
+            </select>
+          </div>
 
           {/* Account Switcher: Real vs Demo */}
-          <div className="flex items-center rounded-sm border border-border bg-card p-0.5 text-xs shadow-xs">
+          <div className="flex items-center rounded-sm border border-border bg-card p-0.5 text-xs shadow-xs shrink-0">
             <button
               type="button"
               disabled={isSwitching}
               onClick={() => handleSwitch("real")}
               className={cn(
-                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer select-none",
+                "flex items-center gap-1 sm:gap-1.5 rounded-xs px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-all cursor-pointer select-none",
                 activeAcc === "real"
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
@@ -120,18 +122,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               {isSwitching && activeAcc === "real" ? (
-                <Loader2 className="size-3 animate-spin text-emerald-400" />
+                <Loader2 className="size-2.5 sm:size-3 animate-spin text-emerald-400" />
               ) : (
-                <span className={cn("size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
+                <span className={cn("size-1.5 sm:size-2 rounded-full", activeAcc === "real" ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40")} />
               )}
-              <span>REAL ($100)</span>
+              <span>REAL<span className="hidden sm:inline"> ($100)</span></span>
             </button>
             <button
               type="button"
               disabled={isSwitching}
               onClick={() => handleSwitch("demo")}
               className={cn(
-                "flex items-center gap-1.5 rounded-xs px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer select-none",
+                "flex items-center gap-1 sm:gap-1.5 rounded-xs px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-all cursor-pointer select-none",
                 activeAcc === "demo"
                   ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
@@ -139,28 +141,29 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               {isSwitching && activeAcc === "demo" ? (
-                <Loader2 className="size-3 animate-spin text-cyan-400" />
+                <Loader2 className="size-2.5 sm:size-3 animate-spin text-cyan-400" />
               ) : (
-                <span className={cn("size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
+                <span className={cn("size-1.5 sm:size-2 rounded-full", activeAcc === "demo" ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/40")} />
               )}
               <span>DEMO</span>
             </button>
             {isFetching > 0 && (
-              <span title="Syncing data..." className="flex items-center px-1 text-muted-foreground/60 animate-pulse">
+              <span title="Syncing data..." className="flex items-center px-0.5 sm:px-1 text-muted-foreground/60 animate-pulse">
                 <Loader2 className="size-2.5 animate-spin" />
               </span>
             )}
           </div>
-          <div className="ml-auto flex items-center gap-1.5">
+
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <NotificationManager />
-            <button className="rounded-sm px-2 py-1 text-xs hover:bg-accent" onClick={() => { const l = lang === "id" ? "en" : "id"; setLang(l); localStorage.setItem("xau.lang", l); }}>{lang.toUpperCase()}</button>
-            <button aria-label="Toggle theme" className="rounded-sm p-1.5 hover:bg-accent" onClick={() => { setDark(!dark); localStorage.setItem("xau.theme", dark ? "light" : "dark"); }}>
-              {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            <button className="rounded-sm px-1.5 py-0.5 sm:px-2 sm:py-1 text-[11px] sm:text-xs hover:bg-accent" onClick={() => { const l = lang === "id" ? "en" : "id"; setLang(l); localStorage.setItem("xau.lang", l); }}>{lang.toUpperCase()}</button>
+            <button aria-label="Toggle theme" className="rounded-sm p-1 sm:p-1.5 hover:bg-accent" onClick={() => { setDark(!dark); localStorage.setItem("xau.theme", dark ? "light" : "dark"); }}>
+              {dark ? <Sun className="size-3.5 sm:size-4" /> : <Moon className="size-3.5 sm:size-4" />}
             </button>
-            {!s.demo && !s.token && <Link to="/login" className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs hover:bg-accent"><LogIn className="size-3.5" />Login</Link>}
+            {!s.demo && !s.token && <Link to="/login" className="flex items-center gap-1 rounded-sm px-1.5 py-0.5 sm:px-2 sm:py-1 text-[11px] sm:text-xs hover:bg-accent"><LogIn className="size-3 sm:size-3.5" /><span className="hidden sm:inline">Login</span></Link>}
           </div>
         </header>
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden p-3 sm:p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

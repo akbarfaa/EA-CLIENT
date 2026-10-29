@@ -167,26 +167,27 @@ function Eas() {
         title="EA Leaderboard"
         sub={`Multi-asset quantitative performance. Results with fewer than ${MIN_SAMPLE} trades are labelled insufficient evidence.`}
         right={
-          <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs">
+          <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">
             {(
               [
-                { id: "ALL", label: `All EAs (${rows.length})` },
-                { id: "XAU", label: `Gold (${rows.filter((r) => getAsset(r.name, r.strategy) === "XAU").length})` },
-                { id: "BTC", label: `Bitcoin (${rows.filter((r) => getAsset(r.name, r.strategy) === "BTC").length})` },
-                { id: "USOIL", label: `Crude Oil (${rows.filter((r) => getAsset(r.name, r.strategy) === "USOIL").length})` },
+                { id: "ALL", label: `All (${rows.length})`, full: `All EAs (${rows.length})` },
+                { id: "XAU", label: `Gold (${rows.filter((r) => getAsset(r.name, r.strategy) === "XAU").length})`, full: `Gold (${rows.filter((r) => getAsset(r.name, r.strategy) === "XAU").length})` },
+                { id: "BTC", label: `BTC (${rows.filter((r) => getAsset(r.name, r.strategy) === "BTC").length})`, full: `Bitcoin (${rows.filter((r) => getAsset(r.name, r.strategy) === "BTC").length})` },
+                { id: "USOIL", label: `Oil (${rows.filter((r) => getAsset(r.name, r.strategy) === "USOIL").length})`, full: `Crude Oil (${rows.filter((r) => getAsset(r.name, r.strategy) === "USOIL").length})` },
               ] as const
             ).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setAssetFilter(tab.id)}
                 className={cn(
-                  "rounded-xs px-2.5 py-1 text-xs font-medium transition-colors",
+                  "rounded-xs px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-medium transition-colors shrink-0 whitespace-nowrap",
                   assetFilter === tab.id
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >
-                {tab.label}
+                <span className="sm:hidden">{tab.label}</span>
+                <span className="hidden sm:inline">{tab.full}</span>
               </button>
             ))}
           </div>

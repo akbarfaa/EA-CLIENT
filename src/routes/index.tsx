@@ -56,13 +56,13 @@ function Overview() {
         sub={s ? `Account ${s.accountId} · ${s.currency}` : "Multi-asset algorithmic portfolio"}
         right={
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs">
+            <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">
               {(
                 [
-                  { id: "ALL", label: "All Assets (14)" },
-                  { id: "XAU", label: "Gold (8)" },
-                  { id: "BTC", label: "Bitcoin (3)" },
-                  { id: "USOIL", label: "Crude Oil (3)" },
+                  { id: "ALL", label: "All (14)", full: "All Assets (14)" },
+                  { id: "XAU", label: "Gold (8)", full: "Gold (8)" },
+                  { id: "BTC", label: "BTC (3)", full: "Bitcoin (3)" },
+                  { id: "USOIL", label: "Oil (3)", full: "Crude Oil (3)" },
                 ] as const
               ).map((tab) => (
                 <button
@@ -72,13 +72,14 @@ function Overview() {
                     setFilterEa("ALL");
                   }}
                   className={cn(
-                    "rounded-xs px-2.5 py-1 text-xs font-medium transition-colors",
+                    "rounded-xs px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-medium transition-colors shrink-0 whitespace-nowrap",
                     filterAsset === tab.id
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
-                  {tab.label}
+                  <span className="sm:hidden">{tab.label}</span>
+                  <span className="hidden sm:inline">{tab.full}</span>
                 </button>
               ))}
             </div>
@@ -286,8 +287,8 @@ function Overview() {
           </div>
         }
         right={
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center rounded-sm border bg-card p-0.5 text-[10px]">
+          <div className="flex items-center gap-1.5 flex-wrap max-w-full">
+            <div className="flex items-center rounded-sm border bg-card p-0.5 text-[10px] max-w-full overflow-x-auto no-scrollbar">
               {(
                 filterAsset === "XAU"
                   ? ["ALL", ...XAU_EAS]
@@ -300,7 +301,7 @@ function Overview() {
                 <button
                   key={ea}
                   onClick={() => setFilterEa(ea)}
-                  className={`rounded-xs px-2 py-0.5 font-medium transition-colors ${
+                  className={`rounded-xs px-2 py-0.5 font-medium transition-colors whitespace-nowrap shrink-0 ${
                     filterEa === ea
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -312,7 +313,7 @@ function Overview() {
             </div>
             <button
               onClick={() => setOnlyTrades(!onlyTrades)}
-              className={`rounded-sm border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+              className={`rounded-sm border px-2 py-0.5 text-[10px] font-medium transition-colors whitespace-nowrap shrink-0 ${
                 onlyTrades
                   ? "border-profit/40 bg-profit/15 text-profit"
                   : "border-border bg-card text-muted-foreground hover:text-foreground"

@@ -50,9 +50,9 @@ function Trades() {
       </div>
       <Panel>
         <QueryState q={q} rows={8}>
-          <div className="max-h-[60vh] overflow-auto">
-            <Table>
-              <TableHeader className="sticky top-0 bg-card"><TableRow>{["Ticket", "EA", "Side", "Vol", "Open", "Close", "Entry", "Exit", "SL", "TP", "Gross", "Comm", "Swap", "Net", "R", "Exit", "Src"].map((h, i) => <TableHead key={i} className="label-xs">{h}</TableHead>)}</TableRow></TableHeader>
+          <div className="max-h-[60vh] max-w-full overflow-auto touch-pan-x">
+            <Table className="min-w-[850px]">
+              <TableHeader className="sticky top-0 bg-card z-10"><TableRow>{["Ticket", "EA", "Side", "Vol", "Open", "Close", "Entry", "Exit", "SL", "TP", "Gross", "Comm", "Swap", "Net", "R", "Exit", "Src"].map((h, i) => <TableHead key={i} className="label-xs whitespace-nowrap">{h}</TableHead>)}</TableRow></TableHeader>
               <TableBody className="num text-xs">
                 {rows.map((t) => (
                   <TableRow key={t.id}>

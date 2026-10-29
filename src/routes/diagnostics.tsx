@@ -76,7 +76,7 @@ function Diag() {
                     <span className={cn("num font-bold", getEaColor(e.ea))}>[{e.ea}]</span>
                     <span className="num rounded-sm bg-muted px-1 text-[10px] text-muted-foreground">{e.type}</span>
                   </div>
-                  <div className="text-sm text-foreground mt-0.5">{e.msg}</div>
+                  <div className="text-sm text-foreground mt-0.5 break-words break-all">{e.msg}</div>
                 </li>
               );
             })}
