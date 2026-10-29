@@ -99,9 +99,12 @@ export async function api<T>(path: string, init?: RequestInit, accountOverride?:
   }
 
   const res = await fetch(`${s.apiBase.replace(/\/$/, "")}/api/v1${resolvedPath}`, {
+    cache: "no-store",
     ...init,
     headers: {
       "Content-Type": "application/json",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
       ...(s.token ? { Authorization: `Bearer ${s.token}` } : {}),
       ...init?.headers,
     },
@@ -119,7 +122,8 @@ export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: 
     queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path, undefined, activeAcc)),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
-    staleTime: 1_000,
+    staleTime: 0,
+    gcTime: 60_000,
   });
 }
 

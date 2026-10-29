@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient, useIsFetching } from "@tanstack/react-query";
-import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn, Loader2 } from "lucide-react";
+import { Activity, BarChart3, Bot, CalendarClock, FlaskConical, Gauge, History, Layers, Settings, ShieldAlert, Sigma, Upload, Moon, Sun, LogIn, Loader2, RefreshCw } from "lucide-react";
 import { getSettings, getActiveAccount, setActiveAccount, useActiveAccount, type ActiveAccount } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -129,6 +129,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <button
+              type="button"
+              aria-label="Refresh data"
+              title="Refresh / Sync Data"
+              onClick={() => queryClient.invalidateQueries()}
+              className="rounded-sm p-1 sm:p-1.5 hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+            >
+              <RefreshCw className={cn("size-3.5 sm:size-4", isFetching > 0 && "animate-spin text-primary")} />
+            </button>
             <NotificationManager />
             <button className="rounded-sm px-1.5 py-0.5 sm:px-2 sm:py-1 text-[11px] sm:text-xs hover:bg-accent" onClick={() => { const l = lang === "id" ? "en" : "id"; setLang(l); localStorage.setItem("xau.lang", l); }}>{lang.toUpperCase()}</button>
             <button aria-label="Toggle theme" className="rounded-sm p-1 sm:p-1.5 hover:bg-accent" onClick={() => { setDark(!dark); localStorage.setItem("xau.theme", dark ? "light" : "dark"); }}>
