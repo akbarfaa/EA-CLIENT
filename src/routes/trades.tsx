@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
-import { useApi, useActiveAccount } from "@/lib/api";
+import { useApi, useActiveAccount, type ActiveAccount } from "@/lib/api";
 import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
 import { PageHeader, Panel, QueryState, SourceBadge, fmt, signCls } from "@/components/kit";
@@ -17,10 +17,20 @@ export const Route = createFileRoute("/trades")({
 });
 
 type TradeItem = ReturnType<typeof demo.trades>[number] & {
-  accountId?: string;
+  accountId?: string | undefined;
 };
 
 const PAGE = 15;
+
+interface FilterState {
+  account: ActiveAccount | "all";
+  symbol: string;
+  ea: string;
+  side: string;
+  outcome: string;
+  source: string;
+  search: string;
+}
 
 function formatEAName(raw: string) {
   const clean = (raw || "UNKNOWN").trim();
@@ -43,7 +53,7 @@ function formatEAName(raw: string) {
   return { code: clean.slice(0, 8), label: clean.slice(8).replace(/^_+/, "") || "Strategy", color: "text-muted-foreground" };
 }
 
-function SymbolBadge({ symbol }: { symbol?: string }) {
+function SymbolBadge({ symbol }: { symbol?: string | undefined }) {
   const s = (symbol || "XAUUSD").toUpperCase();
   if (s.includes("XAU") || s.includes("GOLD")) {
     return (
@@ -73,7 +83,7 @@ function SymbolBadge({ symbol }: { symbol?: string }) {
   );
 }
 
-function AccountBadge({ accountId }: { accountId?: string }) {
+function AccountBadge({ accountId }: { accountId?: string | undefined }) {
   const isReal = (accountId || "real").toLowerCase() === "real";
   return (
     <span
@@ -91,7 +101,7 @@ function AccountBadge({ accountId }: { accountId?: string }) {
 
 function Trades() {
   const globalActiveAcc = useActiveAccount();
-  const [f, setF] = useState({
+  const [f, setF] = useState<FilterState>({
     account: globalActiveAcc,
     symbol: "",
     ea: "",
