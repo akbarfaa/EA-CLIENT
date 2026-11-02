@@ -34,8 +34,23 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const handleSwitch = (target: ActiveAccount) => {
     setActiveAccount(target);
-    queryClient.invalidateQueries({ queryKey: ["api"] });
+    queryClient.cancelQueries();
+    queryClient.resetQueries({ queryKey: ["api"] });
   };
+
+  useEffect(() => {
+    const onResume = () => {
+      if (document.visibilityState === "visible") {
+        queryClient.invalidateQueries({ queryKey: ["api"] });
+      }
+    };
+    document.addEventListener("visibilitychange", onResume);
+    window.addEventListener("focus", onResume);
+    return () => {
+      document.removeEventListener("visibilitychange", onResume);
+      window.removeEventListener("focus", onResume);
+    };
+  }, [queryClient]);
 
   useEffect(() => {
     const d = localStorage.getItem("xau.theme") !== "light";

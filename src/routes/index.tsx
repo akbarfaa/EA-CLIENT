@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useApi } from "@/lib/api";
+import { useApi, useActiveAccount } from "@/lib/api";
 import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,9 @@ const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
 type AssetFilter = "ALL" | "XAU" | "BTC" | "USOIL";
 
 function Overview() {
+  const activeAcc = useActiveAccount();
+  const isReal = activeAcc === "real";
+
   const [filterAsset, setFilterAsset] = useState<AssetFilter>("ALL");
   const [filterEa, setFilterEa] = useState<string>("ALL");
   const [onlyTrades, setOnlyTrades] = useState<boolean>(false);
@@ -34,12 +37,16 @@ function Overview() {
   const sq = useApi<Summary>("/accounts/default/summary", "summary", 3_000);
   const eq = useApi<Eq>("/accounts/default/performance?series=equity", "equity", 15_000);
   const hr = useApi<ReturnType<typeof demo.byHour>>("/accounts/default/performance?groupBy=hour", "byHour", 30_000);
-  const logQ = useApi<Ev[]>("/telemetry/events?limit=40", "events", 3_000);
+  const logQ = useApi<Ev[]>("/telemetry/events?limit=60", "events", 3_000);
   const s = sq.data;
   const stale = s && Date.now() - new Date(s.lastTelemetry.endsWith("Z") || s.lastTelemetry.includes("+") ? s.lastTelemetry : `${s.lastTelemetry}Z`).getTime() > 600_000;
 
   const rawLogs = logQ.data ?? [];
   const filteredLogs = rawLogs.filter((e) => {
+    // Strictly isolate logs to active account to prevent cross-account overlap
+    const evtAcc = ((e as { account_id?: string }).account_id || "real").toLowerCase();
+    if (evtAcc !== activeAcc) return false;
+
     const eaTag = (e.ea || "").toUpperCase();
     if (filterAsset === "XAU" && !XAU_EAS.includes(eaTag)) return false;
     if (filterAsset === "BTC" && !BTC_EAS.includes(eaTag)) return false;
@@ -51,9 +58,36 @@ function Overview() {
 
   return (
     <div className="space-y-4">
+      {/* Account Context Banner */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card px-3 py-2 text-xs">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border",
+              isReal
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                : "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
+            )}
+          >
+            {isReal ? "EXNESS REAL (412178700)" : "EXNESS DEMO (414427803)"}
+          </span>
+          <span className="text-muted-foreground hidden sm:inline">
+            {isReal ? "Akun Riil $100 · Live Execution" : "Akun Sandbox Forward Testing"}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 text-muted-foreground text-[11px]">
+          <span>Server: Exness-MT5</span>
+          {s && (
+            <span className="num font-semibold text-foreground">
+              Equity: ${fmt(s.equity)}
+            </span>
+          )}
+        </div>
+      </div>
+
       <PageHeader
         title="Overview"
-        sub={s ? `Account ${s.accountId} · ${s.currency}` : "Multi-asset algorithmic portfolio"}
+        sub={s ? `${isReal ? "Exness Real (412178700)" : "Exness Demo (414427803)"} · Portfolio Balance & Equity` : "Multi-asset algorithmic portfolio"}
         right={
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">

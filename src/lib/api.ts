@@ -80,7 +80,7 @@ export async function api<T>(path: string, init?: RequestInit, accountOverride?:
   // Transform path dynamically to target the active account
   let resolvedPath = path.replace("/accounts/default/", `/accounts/${currentAcc}/`);
   
-  // Append account_id filter for EAs and events if not already specified
+  // Append account_id filter for EAs, events, and trades if not already specified
   if (resolvedPath === "/eas" || resolvedPath.startsWith("/eas?")) {
     const sep = resolvedPath.includes("?") ? "&" : "?";
     if (!resolvedPath.includes("account_id=")) {
@@ -98,7 +98,11 @@ export async function api<T>(path: string, init?: RequestInit, accountOverride?:
     }
   }
 
-  const res = await fetch(`${s.apiBase.replace(/\/$/, "")}/api/v1${resolvedPath}`, {
+  // Anti-cache busting for iOS PWA and Mobile WebKit disk cache
+  const sep = resolvedPath.includes("?") ? "&" : "?";
+  const urlWithCacheBuster = `${s.apiBase.replace(/\/$/, "")}/api/v1${resolvedPath}${sep}_t=${Date.now()}`;
+
+  const res = await fetch(urlWithCacheBuster, {
     cache: "no-store",
     ...init,
     headers: {
@@ -117,13 +121,14 @@ export async function api<T>(path: string, init?: RequestInit, accountOverride?:
 /** Fetch from backend, or return clearly-labelled simulated demo data when demo mode is on. */
 export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: number) {
   const activeAcc = useActiveAccount();
+  const resolvedPath = path.replace("/accounts/default/", `/accounts/${activeAcc}/`);
   return useQuery<T>({
-    queryKey: ["api", path, getSettings().demo, activeAcc],
+    queryKey: ["api", resolvedPath, getSettings().demo, activeAcc],
     queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path, undefined, activeAcc)),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
     staleTime: 0,
-    gcTime: 60_000,
+    gcTime: 15_000,
   });
 }
 
