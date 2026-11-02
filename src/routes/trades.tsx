@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useApi, useActiveAccount } from "@/lib/api";
 import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
@@ -101,6 +101,11 @@ function Trades() {
     search: "",
   });
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    setF((prev) => ({ ...prev, account: globalActiveAcc }));
+    setPage(0);
+  }, [globalActiveAcc]);
 
   // Build query params targeting the selected account
   const qs = useMemo(() => {

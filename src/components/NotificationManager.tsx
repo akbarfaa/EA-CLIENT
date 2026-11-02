@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { soundNotifier } from "@/lib/audio";
-import { api, getSettings } from "@/lib/api";
+import { api, getSettings, useActiveAccount } from "@/lib/api";
 
 export interface TelemetryEvent {
   id: string;
@@ -121,16 +121,27 @@ export function NotificationManager() {
   };
 
   // Poll live events every 3 seconds
+  const activeAcc = useActiveAccount();
   const isDemo = getSettings().demo;
   const eventsQuery = useQuery<TelemetryEvent[]>({
-    queryKey: ["notification_events", isDemo],
+    queryKey: ["notification_events", isDemo, activeAcc],
     queryFn: async () => {
       if (isDemo) return [];
-      return api<TelemetryEvent[]>("/telemetry/events?limit=30");
+      return api<TelemetryEvent[]>("/telemetry/events?limit=30", undefined, activeAcc);
     },
     refetchInterval: 3000,
     staleTime: 1500,
   });
+
+  // Reset seen events when switching accounts so old account events don't trigger alerts
+  const prevAccRef = useRef(activeAcc);
+  useEffect(() => {
+    if (prevAccRef.current !== activeAcc) {
+      prevAccRef.current = activeAcc;
+      initialLoadDone.current = false;
+      seenEventIds.current.clear();
+    }
+  }, [activeAcc]);
 
   useEffect(() => {
     if (!eventsQuery.data || eventsQuery.data.length === 0) return;
