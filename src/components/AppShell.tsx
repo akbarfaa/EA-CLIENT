@@ -33,9 +33,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const activeAcc = useActiveAccount();
 
   const handleSwitch = (target: ActiveAccount) => {
+    if (target === activeAcc) return;
+    queryClient.cancelQueries({ queryKey: ["api"] });
     setActiveAccount(target);
-    queryClient.cancelQueries();
-    queryClient.resetQueries({ queryKey: ["api"] });
   };
 
   useEffect(() => {

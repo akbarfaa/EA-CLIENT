@@ -23,11 +23,12 @@ type TradeItem = ReturnType<typeof demo.trades>[number] & {
 const PAGE = 15;
 
 interface FilterState {
-  account: ActiveAccount | "all";
+  account: "auto" | ActiveAccount | "all";
   symbol: string;
   ea: string;
   side: string;
   outcome: string;
+  reason: string;
   source: string;
   search: string;
 }
@@ -102,31 +103,33 @@ function AccountBadge({ accountId }: { accountId?: string | undefined }) {
 function Trades() {
   const globalActiveAcc = useActiveAccount();
   const [f, setF] = useState<FilterState>({
-    account: globalActiveAcc,
+    account: "auto",
     symbol: "",
     ea: "",
     side: "",
     outcome: "",
+    reason: "",
     source: "",
     search: "",
   });
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    setF((prev) => ({ ...prev, account: globalActiveAcc }));
+    setF((prev) => ({ ...prev, account: "auto" }));
     setPage(0);
   }, [globalActiveAcc]);
 
-  // Build query params targeting the selected account
+  const effectiveAccount: ActiveAccount | "all" = f.account === "auto" ? globalActiveAcc : f.account;
+
+  // Build query params targeting the selected account synchronously (zero 1-render lag)
   const qs = useMemo(() => {
     const params = new URLSearchParams();
-    if (f.account && f.account !== "all") params.set("account_id", f.account);
-    else if (f.account === "all") params.set("account_id", "all");
+    params.set("account_id", effectiveAccount);
     if (f.symbol) params.set("symbol", f.symbol);
     if (f.ea) params.set("ea", f.ea);
     params.set("limit", "1000");
     return params.toString();
-  }, [f.account, f.symbol, f.ea]);
+  }, [effectiveAccount, f.symbol, f.ea]);
 
   const q = useApi<TradeItem[]>(`/trades?${qs}`, "trades", 10_000);
 
@@ -157,9 +160,9 @@ function Trades() {
   const filtered = useMemo(() => {
     return dedupedTrades.filter((t) => {
       // Account filter
-      if (f.account && f.account !== "all") {
+      if (effectiveAccount !== "all") {
         const itemAcc = (t.accountId || "real").toLowerCase();
-        if (itemAcc !== f.account.toLowerCase()) return false;
+        if (itemAcc !== effectiveAccount.toLowerCase()) return false;
       }
 
       // Symbol filter
@@ -188,6 +191,12 @@ function Trades() {
         if (f.outcome === "loss" && t.net > 0) return false;
       }
 
+      // Exit reason filter
+      if (f.reason) {
+        const rUpper = (t.exitReason || "CLOSED").toUpperCase();
+        if (rUpper !== f.reason.toUpperCase()) return false;
+      }
+
       // Source filter
       if (f.source && t.source !== f.source) return false;
 
@@ -196,7 +205,7 @@ function Trades() {
 
       return true;
     });
-  }, [dedupedTrades, f]);
+  }, [dedupedTrades, effectiveAccount, f]);
 
   // Quick summary stats for filtered trades
   const stats = useMemo(() => {
@@ -217,16 +226,17 @@ function Trades() {
   const rows = filtered.slice(page * PAGE, page * PAGE + PAGE);
 
   const hasActiveFilters = Boolean(
-    f.symbol || f.ea || f.side || f.outcome || f.source || f.search || (f.account && f.account !== globalActiveAcc)
+    f.symbol || f.ea || f.side || f.outcome || f.reason || f.source || f.search || f.account !== "auto"
   );
 
   const resetFilters = () => {
     setF({
-      account: globalActiveAcc,
+      account: "auto",
       symbol: "",
       ea: "",
       side: "",
       outcome: "",
+      reason: "",
       source: "",
       search: "",
     });
@@ -297,11 +307,19 @@ function Trades() {
           }}
         />
 
-        {sel("account", "Account", [
-          { value: "real", label: "Real Account" },
-          { value: "demo", label: "Demo Account" },
-          { value: "all", label: "All Accounts" },
-        ])}
+        <select
+          value={effectiveAccount}
+          onChange={(e) => {
+            const val = e.target.value as ActiveAccount | "all";
+            setF({ ...f, account: val === globalActiveAcc ? "auto" : val });
+            setPage(0);
+          }}
+          className="h-8 rounded-sm border bg-card px-2.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="real">Real Account</option>
+          <option value="demo">Demo Account</option>
+          <option value="all">All Accounts</option>
+        </select>
 
         {sel("symbol", "Pair", [
           { value: "XAUUSD", label: "XAUUSD (Gold)" },
@@ -336,6 +354,13 @@ function Trades() {
         {sel("outcome", "Outcome", [
           { value: "win", label: "Win" },
           { value: "loss", label: "Loss" },
+        ])}
+
+        {sel("reason", "Close Type", [
+          { value: "MANUAL", label: "Manual Close" },
+          { value: "TP", label: "Take Profit (TP)" },
+          { value: "SL", label: "Stop Loss (SL)" },
+          { value: "BE", label: "Break Even (BE)" },
         ])}
 
         {sel("source", "Source", [
@@ -493,15 +518,19 @@ function Trades() {
                         <TableCell>
                           <span
                             className={cn(
-                              "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium border uppercase tracking-wider",
-                              t.exitReason === "TP"
+                              "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border uppercase tracking-wider whitespace-nowrap",
+                              t.exitReason === "MANUAL"
+                                ? "bg-amber-500/15 text-amber-400 border-amber-500/35"
+                                : t.exitReason === "TP"
                                 ? "bg-profit/10 text-profit border-profit/25"
                                 : t.exitReason === "SL"
                                 ? "bg-loss/10 text-loss border-loss/25"
+                                : t.exitReason === "BE"
+                                ? "bg-sky-500/15 text-sky-400 border-sky-500/35"
                                 : "bg-muted text-muted-foreground border-border"
                             )}
                           >
-                            {t.exitReason || "CLOSED"}
+                            {t.exitReason === "MANUAL" ? "MANUAL CLOSE" : t.exitReason || "CLOSED"}
                           </span>
                         </TableCell>
 

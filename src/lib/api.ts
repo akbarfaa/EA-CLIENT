@@ -124,11 +124,12 @@ export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: 
   const resolvedPath = path.replace("/accounts/default/", `/accounts/${activeAcc}/`);
   return useQuery<T>({
     queryKey: ["api", resolvedPath, getSettings().demo, activeAcc],
-    queryFn: async () => (getSettings().demo ? (demo[demoKey]() as T) : api<T>(path, undefined, activeAcc)),
+    queryFn: async ({ signal }) =>
+      getSettings().demo ? (demo[demoKey]() as T) : api<T>(path, { signal }, activeAcc),
     ...(refetchMs !== undefined ? { refetchInterval: refetchMs } : {}),
     retry: 1,
-    staleTime: 0,
-    gcTime: 15_000,
+    staleTime: 2_000,
+    gcTime: 30_000,
   });
 }
 
