@@ -43,9 +43,9 @@ export const demo = {
     { id: "ea03_usoil", name: "EA03_USOIL", strategy: "Donchian Volatility Expansion (USOIL)", magic: 20260003, version: "1.0.0", health: "healthy" as Health, heartbeat: iso(now() - 24000), netPnl: 82.4, floating: 0, trades: 28, winRate: 0.50, pf: 1.21, expectancy: 2.94, avgWin: 30.0, avgLoss: -25.0, maxDd: 3.9, avgR: 0.14, longs: 15, shorts: 13, positions: 0, skipped: { spread: 5, news: 5, noSignal: 210 } },
   ],
   positions: () => [
-    { ticket: 5512031, symbol: "XAUUSDc", side: "BUY", volume: 0.05, entry: 2712.35, price: 2711.06, sl: 2705.1, tp: 2726.9, pnl: -6.45, openedAt: iso(now() - 42 * 60000), ea: "EA01", magic: 20240001, riskToSl: 36.25 },
-    { ticket: 5512044, symbol: "BTCUSDm", side: "BUY", volume: 0.01, entry: 67450.0, price: 67871.0, sl: 66900.0, tp: 68500.0, pnl: 42.10, openedAt: iso(now() - 18 * 60000), ea: "EA01_BTC", magic: 20250001, riskToSl: 55.00 },
-    { ticket: 5512055, symbol: "USOILm", side: "BUY", volume: 0.02, entry: 71.40, price: 72.325, sl: 70.80, tp: 72.80, pnl: 18.50, openedAt: iso(now() - 8 * 60000), ea: "EA01_USOIL", magic: 20260001, riskToSl: 12.00 },
+    { ticket: 5512031, symbol: "XAUUSDc", side: "BUY", volume: 0.05, entry: 2712.35, price: 2711.06, sl: 2705.1, tp: 2726.9, pnl: -6.45, openedAt: iso(now() - 42 * 60000), updatedAt: iso(now() - 2000), ea: "EA01", magic: 20240001, riskToSl: 36.25 },
+    { ticket: 5512044, symbol: "BTCUSDm", side: "BUY", volume: 0.01, entry: 67450.0, price: 67871.0, sl: 66900.0, tp: 68500.0, pnl: 42.10, openedAt: iso(now() - 18 * 60000), updatedAt: iso(now() - 2000), ea: "EA01_BTC", magic: 20250001, riskToSl: 55.00 },
+    { ticket: 5512055, symbol: "USOILm", side: "BUY", volume: 0.02, entry: 71.40, price: 72.325, sl: 70.80, tp: 72.80, pnl: 18.50, openedAt: iso(now() - 8 * 60000), updatedAt: iso(now() - 2000), ea: "EA01_USOIL", magic: 20260001, riskToSl: 12.00 },
   ],
   trades: () => {
     reset();

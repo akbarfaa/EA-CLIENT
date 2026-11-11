@@ -22,6 +22,7 @@ export interface PositionRow {
   tp: number;
   pnl: number;
   openedAt: string;
+  updatedAt?: string;
   ea: string;
   magic: number;
   riskToSl: number | null;
@@ -84,7 +85,7 @@ function Positions() {
             <Table className="min-w-[750px]">
               <TableHeader>
                 <TableRow>
-                  {["Ticket", "Symbol", "Side", "Vol", "Entry", "Price", "SL", "TP", "P/L", "Age", "EA / Magic", "Risk→SL"].map((h) => (
+                  {["Ticket", "Symbol", "Side", "Vol", "Entry", "Price", "SL", "TP", "P/L", "Age", "Status", "EA / Magic", "Risk→SL"].map((h) => (
                     <TableHead key={h} className="label-xs whitespace-nowrap">
                       {h}
                     </TableHead>
@@ -129,7 +130,13 @@ function Positions() {
                       </TableCell>
                       <TableCell>{fmt(r.tp)}</TableCell>
                       <TableCell className={signCls(r.pnl)}>{fmt(r.pnl)}</TableCell>
-                      <TableCell>{ago(r.openedAt)}</TableCell>
+                      <TableCell className="whitespace-nowrap">{ago(r.openedAt)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 text-profit">
+                          <span className="size-1.5 rounded-full bg-profit animate-pulse" />
+                          {ago(r.updatedAt ?? new Date().toISOString())}
+                        </span>
+                      </TableCell>
                       <TableCell>{r.ea} / {r.magic}</TableCell>
                       <TableCell className={r.riskToSl == null ? "text-warn" : ""}>
                         {r.riskToSl == null ? "Not calculable" : fmt(r.riskToSl)}
