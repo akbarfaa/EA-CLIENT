@@ -119,6 +119,8 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
         let symbol = "XAUUSD";
         if (ea.includes("BTC")) symbol = "BTCUSD";
         if (ea.includes("USOIL") || ea.includes("OIL")) symbol = "USOIL";
+        if (ea.includes("GBPUSD")) symbol = "GBPUSD";
+        if (ea.includes("USDJPY")) symbol = "USDJPY";
 
         const currentPrice = side === "BUY" ? latestBid || entry : latestAsk || entry;
         const pnl = side === "BUY" ? (currentPrice - entry) * lots * 100 : (entry - currentPrice) * lots * 100;
@@ -147,6 +149,8 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
     if (filterAsset === "ALL") return true;
     const sym = p.symbol.toUpperCase();
     if (filterAsset === "XAU") return sym.includes("XAU") || sym.includes("GOLD");
+    if (filterAsset === "GBPUSD") return sym.includes("GBPUSD");
+    if (filterAsset === "USDJPY") return sym.includes("USDJPY");
     if (filterAsset === "BTC") return sym.includes("BTC");
     if (filterAsset === "USOIL") return sym.includes("OIL") || sym.includes("CRUDE");
     return true;
@@ -155,9 +159,11 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
   const filteredTrades = rawTrades.filter((t) => {
     if (filterAsset === "ALL") return true;
     const tEa = t.ea.toUpperCase();
+    if (filterAsset === "GBPUSD") return tEa.includes("GBPUSD");
+    if (filterAsset === "USDJPY") return tEa.includes("USDJPY");
     if (filterAsset === "BTC") return tEa.includes("BTC");
     if (filterAsset === "USOIL") return tEa.includes("USOIL") || tEa.includes("OIL");
-    return !tEa.includes("BTC") && !tEa.includes("USOIL");
+    return !tEa.includes("BTC") && !tEa.includes("USOIL") && !tEa.includes("GBPUSD") && !tEa.includes("USDJPY");
   }).slice(0, 10);
 
   const reportDateStr = new Date().toLocaleDateString("id-ID", {
@@ -291,8 +297,10 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
             <div className="flex items-center rounded bg-[#111827] border border-[#1e293b] p-0.5">
               {(
                 [
-                  { id: "ALL", label: "Semua Asset (14 EA)" },
-                  { id: "XAU", label: "Gold / XAU (8)" },
+                  { id: "ALL", label: "Semua Asset (22 EA)" },
+                  { id: "XAU", label: "Gold / XAU (10)" },
+                  { id: "GBPUSD", label: "GBPUSD (3)" },
+                  { id: "USDJPY", label: "USDJPY (3)" },
                   { id: "BTC", label: "Bitcoin / BTC (3)" },
                   { id: "USOIL", label: "Oil / USOIL (3)" },
                 ] as const

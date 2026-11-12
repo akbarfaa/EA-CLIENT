@@ -41,6 +41,6 @@ export const formatEaDisplayName = (id: string, name: string = "") => {
 };
 
 export const getEaTimeframe = (asset: AssetType): string => {
-  if (asset === "XAU") return "M5";
+  if (asset === "XAU" || asset === "GBPUSD" || asset === "USDJPY") return "M5";
   return "M15";
 };

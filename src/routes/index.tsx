@@ -20,10 +20,12 @@ type Eq = ReturnType<typeof demo.equity>;
 type Ev = ReturnType<typeof demo.events>[number];
 
 const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER"];
+const GBP_EAS = ["EA01_GBPUSD", "EA02_GBPUSD", "EA03_GBPUSD"];
+const JPY_EAS = ["EA01_USDJPY", "EA02_USDJPY", "EA03_USDJPY"];
 const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
 const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
 
-type AssetFilter = "ALL" | "XAU" | "BTC" | "USOIL";
+type AssetFilter = "ALL" | "XAU" | "GBPUSD" | "USDJPY" | "BTC" | "USOIL";
 
 function Overview() {
   const activeAcc = useActiveAccount();
@@ -49,6 +51,8 @@ function Overview() {
 
     const eaTag = (e.ea || "").toUpperCase();
     if (filterAsset === "XAU" && !XAU_EAS.includes(eaTag)) return false;
+    if (filterAsset === "GBPUSD" && !GBP_EAS.includes(eaTag)) return false;
+    if (filterAsset === "USDJPY" && !JPY_EAS.includes(eaTag)) return false;
     if (filterAsset === "BTC" && !BTC_EAS.includes(eaTag)) return false;
     if (filterAsset === "USOIL" && !OIL_EAS.includes(eaTag)) return false;
     if (filterEa !== "ALL" && eaTag !== filterEa) return false;
@@ -93,8 +97,10 @@ function Overview() {
             <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">
               {(
                 [
-                  { id: "ALL", label: "All (16)", full: "All Assets (16)" },
+                  { id: "ALL", label: "All (22)", full: "All Assets (22)" },
                   { id: "XAU", label: "Gold (10)", full: "Gold (10)" },
+                  { id: "GBPUSD", label: "GBP (3)", full: "GBPUSD (3)" },
+                  { id: "USDJPY", label: "JPY (3)", full: "USDJPY (3)" },
                   { id: "BTC", label: "BTC (3)", full: "Bitcoin (3)" },
                   { id: "USOIL", label: "Oil (3)", full: "Crude Oil (3)" },
                 ] as const
@@ -136,8 +142,8 @@ function Overview() {
         }
       />
 
-      {/* 3 Asset Pillars Quick Cards */}
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      {/* 5 Asset Pillars Quick Cards */}
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
         <div
           onClick={() => {
             setFilterAsset(filterAsset === "XAU" ? "ALL" : "XAU");
@@ -156,13 +162,69 @@ function Overview() {
               <span className="font-semibold text-sm text-foreground">XAUUSD Suite</span>
             </div>
             <span className="num rounded-xs border border-gold/40 bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
-              7 EAs · M5
+              10 EAs · M5
             </span>
           </div>
-          <div className="mt-2 text-xs text-muted-foreground">Exness XAUUSDc Spot Metal</div>
+          <div className="mt-2 text-xs text-muted-foreground">Exness XAUUSDm Spot Metal</div>
           <div className="mt-1.5 flex items-center justify-between text-[11px]">
-            <span className="text-muted-foreground">Core Strategies:</span>
+            <span className="text-muted-foreground">Core:</span>
             <span className="num font-medium text-foreground">VWAP · FVG · Reclaim</span>
+          </div>
+        </div>
+
+        <div
+          onClick={() => {
+            setFilterAsset(filterAsset === "GBPUSD" ? "ALL" : "GBPUSD");
+            setFilterEa("ALL");
+          }}
+          className={cn(
+            "cursor-pointer rounded-md border p-3 transition-all",
+            filterAsset === "GBPUSD"
+              ? "border-sky-500/60 bg-sky-500/10 ring-1 ring-sky-500/40 shadow-xs"
+              : "border-border bg-card hover:border-sky-500/40 hover:bg-muted/30"
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-sky-500" />
+              <span className="font-semibold text-sm text-foreground">GBPUSD Suite</span>
+            </div>
+            <span className="num rounded-xs border border-sky-500/40 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-sky-600 dark:text-sky-400">
+              3 EAs · M5
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">London & NY Pound Sterling</div>
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">Core:</span>
+            <span className="num font-medium text-foreground">VWAP · Sweep · FVG</span>
+          </div>
+        </div>
+
+        <div
+          onClick={() => {
+            setFilterAsset(filterAsset === "USDJPY" ? "ALL" : "USDJPY");
+            setFilterEa("ALL");
+          }}
+          className={cn(
+            "cursor-pointer rounded-md border p-3 transition-all",
+            filterAsset === "USDJPY"
+              ? "border-pink-500/60 bg-pink-500/10 ring-1 ring-pink-500/40 shadow-xs"
+              : "border-border bg-card hover:border-pink-500/40 hover:bg-muted/30"
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-pink-500" />
+              <span className="font-semibold text-sm text-foreground">USDJPY Suite</span>
+            </div>
+            <span className="num rounded-xs border border-pink-500/40 bg-pink-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-pink-600 dark:text-pink-400">
+              3 EAs · M5
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">Tokyo, London & NY Macro</div>
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">Core:</span>
+            <span className="num font-medium text-foreground">VWAP · Sweep · FVG</span>
           </div>
         </div>
 
@@ -326,11 +388,15 @@ function Overview() {
               {(
                 filterAsset === "XAU"
                   ? ["ALL", ...XAU_EAS]
+                  : filterAsset === "GBPUSD"
+                  ? ["ALL", ...GBP_EAS]
+                  : filterAsset === "USDJPY"
+                  ? ["ALL", ...JPY_EAS]
                   : filterAsset === "BTC"
                   ? ["ALL", ...BTC_EAS]
                   : filterAsset === "USOIL"
                   ? ["ALL", ...OIL_EAS]
-                  : ["ALL", ...XAU_EAS, ...BTC_EAS, ...OIL_EAS]
+                  : ["ALL", ...XAU_EAS, ...GBP_EAS, ...JPY_EAS, ...BTC_EAS, ...OIL_EAS]
               ).map((ea) => (
                 <button
                   key={ea}
@@ -384,6 +450,8 @@ function Overview() {
                   if (u === "EA07") return "text-rose-600 dark:text-rose-400";
                   if (u.includes("BTC")) return "text-amber-600 dark:text-amber-400";
                   if (u.includes("USOIL") || u.includes("OIL")) return "text-emerald-600 dark:text-emerald-400";
+                  if (u.includes("GBPUSD")) return "text-sky-600 dark:text-sky-400";
+                  if (u.includes("USDJPY")) return "text-pink-600 dark:text-pink-400";
                   return "text-foreground";
                 };
 

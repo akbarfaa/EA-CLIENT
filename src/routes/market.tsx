@@ -182,9 +182,15 @@ export function Market() {
           <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Cakupan Portofolio Terproteksi
           </div>
-          <div className="mt-2 flex flex-wrap gap-2 text-xs">
+          <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
             <span className="inline-flex items-center gap-1 rounded border border-gold/30 bg-gold/10 px-2 py-0.5 font-medium text-gold">
-              🪙 XAUUSD (8 EA)
+              🪙 XAUUSD (10 EA)
+            </span>
+            <span className="inline-flex items-center gap-1 rounded border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 font-medium text-sky-400">
+              💷 GBPUSD (3 EA)
+            </span>
+            <span className="inline-flex items-center gap-1 rounded border border-pink-500/30 bg-pink-500/10 px-2 py-0.5 font-medium text-pink-400">
+              💴 USDJPY (3 EA)
             </span>
             <span className="inline-flex items-center gap-1 rounded border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 font-medium text-orange-400">
               ⚡ BTCUSD (3 EA)

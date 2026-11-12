@@ -26,6 +26,8 @@ const getEaColor = (eaName: string) => {
   if (u === "EA07") return "text-rose-600 dark:text-rose-400";
   if (u.includes("BTC")) return "text-amber-600 dark:text-amber-400";
   if (u.includes("USOIL") || u.includes("OIL")) return "text-emerald-600 dark:text-emerald-400";
+  if (u.includes("GBPUSD")) return "text-sky-600 dark:text-sky-400";
+  if (u.includes("USDJPY")) return "text-pink-600 dark:text-pink-400";
   return "text-foreground";
 };
 
@@ -44,10 +46,20 @@ function Diag() {
             onChange={(e) => setEa(e.target.value)}
             className="rounded-sm border bg-card px-2 py-1 text-xs text-foreground focus:outline-hidden"
           >
-            <option value="all">All EAs (16)</option>
+            <option value="all">All EAs (22)</option>
             <optgroup label="XAUUSD Suite">
               {["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER"].map((x) => (
                 <option key={x} value={x}>{x} (Gold)</option>
+              ))}
+            </optgroup>
+            <optgroup label="GBPUSD Suite">
+              {["EA01_GBPUSD", "EA02_GBPUSD", "EA03_GBPUSD"].map((x) => (
+                <option key={x} value={x}>{x} (Pound)</option>
+              ))}
+            </optgroup>
+            <optgroup label="USDJPY Suite">
+              {["EA01_USDJPY", "EA02_USDJPY", "EA03_USDJPY"].map((x) => (
+                <option key={x} value={x}>{x} (Yen)</option>
               ))}
             </optgroup>
             <optgroup label="BTCUSD Suite">

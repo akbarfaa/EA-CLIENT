@@ -78,9 +78,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div>
             <div className="flex items-center gap-1.5">
               <span className="num text-sm font-semibold text-gold">MULTI-ASSET</span>
-              <span className="rounded-xs border border-border bg-muted/60 px-1 py-0.2 text-[9px] font-mono text-muted-foreground">3 PAIR</span>
+              <span className="rounded-xs border border-border bg-muted/60 px-1 py-0.2 text-[9px] font-mono text-muted-foreground">5 PAIR</span>
             </div>
-            <div className="label-xs text-[10px] text-muted-foreground">XAU · BTC · USOIL Suite</div>
+            <div className="label-xs text-[10px] text-muted-foreground">XAU · GBP · JPY · BTC · OIL</div>
           </div>
         </div>
         <nav className="flex-1 overflow-y-auto p-2">

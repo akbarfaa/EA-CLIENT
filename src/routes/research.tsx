@@ -46,7 +46,7 @@ type ResearchRun = {
 export function Research() {
   // Real-time polling every 30 seconds for research & live forward test sync
   const q = useApi<ResearchRun[]>("/research/runs", "research", 30_000);
-  const [suiteFilter, setSuiteFilter] = useState<"ALL" | "XAUUSD" | "BTCUSD" | "USOIL">("ALL");
+  const [suiteFilter, setSuiteFilter] = useState<"ALL" | "XAUUSD" | "GBPUSD" | "USDJPY" | "BTCUSD" | "USOIL">("ALL");
 
   // Monte Carlo simulation state
   const [startingBalance, setStartingBalance] = useState<number>(200);
@@ -197,6 +197,24 @@ export function Research() {
               Gold XAU (8)
             </button>
             <button
+              onClick={() => setSuiteFilter("GBPUSD")}
+              className={cn(
+                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                suiteFilter === "GBPUSD" ? "bg-sky-500 text-black font-semibold" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Pound GBP (3)
+            </button>
+            <button
+              onClick={() => setSuiteFilter("USDJPY")}
+              className={cn(
+                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                suiteFilter === "USDJPY" ? "bg-pink-500 text-white font-semibold" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Yen JPY (3)
+            </button>
+            <button
               onClick={() => setSuiteFilter("BTCUSD")}
               className={cn(
                 "rounded px-2.5 py-1 text-xs font-medium transition-colors",
@@ -247,7 +265,9 @@ export function Research() {
                         <span className={cn(
                           "rounded px-1.5 py-0.5 text-[10px] font-semibold font-mono",
                           r.suite === "BTCUSD" ? "bg-orange-500/15 text-orange-400" :
-                          r.suite === "USOIL" ? "bg-cyan-500/15 text-cyan-400" : "bg-gold/15 text-gold"
+                          r.suite === "USOIL" ? "bg-cyan-500/15 text-cyan-400" :
+                          r.suite === "GBPUSD" ? "bg-sky-500/15 text-sky-400" :
+                          r.suite === "USDJPY" ? "bg-pink-500/15 text-pink-400" : "bg-gold/15 text-gold"
                         )}>
                           {r.suite ?? "XAUUSD"} {r.timeframe ?? "M5"}
                         </span>

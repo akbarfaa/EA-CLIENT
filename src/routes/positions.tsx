@@ -97,6 +97,8 @@ function Positions() {
                   const isGold = r.symbol.includes("XAU");
                   const isBtc = r.symbol.includes("BTC");
                   const isOil = r.symbol.includes("USOIL") || r.symbol.includes("OIL");
+                  const isGbp = r.symbol.includes("GBPUSD");
+                  const isJpy = r.symbol.includes("USDJPY");
 
                   return (
                     <TableRow key={r.ticket}>
@@ -117,6 +119,16 @@ function Positions() {
                           {isOil && (
                             <span className="num rounded-xs border border-emerald-500/40 bg-emerald-500/10 px-1 py-0.2 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
                               USOIL
+                            </span>
+                          )}
+                          {isGbp && (
+                            <span className="num rounded-xs border border-sky-500/40 bg-sky-500/10 px-1 py-0.2 text-[9px] font-semibold text-sky-600 dark:text-sky-400">
+                              GBPUSD
+                            </span>
+                          )}
+                          {isJpy && (
+                            <span className="num rounded-xs border border-pink-500/40 bg-pink-500/10 px-1 py-0.2 text-[9px] font-semibold text-pink-600 dark:text-pink-400">
+                              USDJPY
                             </span>
                           )}
                         </div>
@@ -155,6 +167,8 @@ function Positions() {
             const isGold = k.includes("XAU");
             const isBtc = k.includes("BTC");
             const isOil = k.includes("USOIL") || k.includes("OIL");
+            const isGbp = k.includes("GBPUSD");
+            const isJpy = k.includes("USDJPY");
 
             return (
               <div
@@ -163,7 +177,9 @@ function Positions() {
                   "rounded-sm border p-2.5 text-xs bg-card transition-all",
                   isGold && "border-gold/30 hover:border-gold/50",
                   isBtc && "border-amber-500/30 hover:border-amber-500/50",
-                  isOil && "border-emerald-500/30 hover:border-emerald-500/50"
+                  isOil && "border-emerald-500/30 hover:border-emerald-500/50",
+                  isGbp && "border-sky-500/30 hover:border-sky-500/50",
+                  isJpy && "border-pink-500/30 hover:border-pink-500/50"
                 )}
               >
                 <div className="flex items-center justify-between font-medium">
@@ -171,6 +187,8 @@ function Positions() {
                   {isGold && <span className="size-2 rounded-full bg-gold" />}
                   {isBtc && <span className="size-2 rounded-full bg-amber-500" />}
                   {isOil && <span className="size-2 rounded-full bg-emerald-500" />}
+                  {isGbp && <span className="size-2 rounded-full bg-sky-500" />}
+                  {isJpy && <span className="size-2 rounded-full bg-pink-500" />}
                 </div>
                 <div className="num mt-1.5 text-muted-foreground">
                   Net lots <span className="font-semibold text-foreground">{fmt(v.lots)}</span> · {[...v.dirs].join("/")} · {v.eas.size} source(s)

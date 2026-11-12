@@ -14,7 +14,7 @@ export const Route = createFileRoute("/eas")({
 });
 
 type E = ReturnType<typeof demo.eas>[number];
-type AssetFilter = "ALL" | "XAU" | "BTC" | "USOIL";
+type AssetFilter = "ALL" | "XAU" | "GBPUSD" | "USDJPY" | "BTC" | "USOIL";
 const MIN_SAMPLE = 100;
 const COLS: [keyof E, string][] = [
   ["netPnl", "Net P/L"],
@@ -62,6 +62,8 @@ function Eas() {
               [
                 { id: "ALL", label: `All (${rows.length})`, full: `All EAs (${rows.length})` },
                 { id: "XAU", label: `Gold (${rows.filter((r) => getAsset(r.name, r.strategy) === "XAU").length})`, full: `Gold (${rows.filter((r) => getAsset(r.name, r.strategy) === "XAU").length})` },
+                { id: "GBPUSD", label: `GBP (${rows.filter((r) => getAsset(r.name, r.strategy) === "GBPUSD").length})`, full: `GBPUSD (${rows.filter((r) => getAsset(r.name, r.strategy) === "GBPUSD").length})` },
+                { id: "USDJPY", label: `JPY (${rows.filter((r) => getAsset(r.name, r.strategy) === "USDJPY").length})`, full: `USDJPY (${rows.filter((r) => getAsset(r.name, r.strategy) === "USDJPY").length})` },
                 { id: "BTC", label: `BTC (${rows.filter((r) => getAsset(r.name, r.strategy) === "BTC").length})`, full: `Bitcoin (${rows.filter((r) => getAsset(r.name, r.strategy) === "BTC").length})` },
                 { id: "USOIL", label: `Oil (${rows.filter((r) => getAsset(r.name, r.strategy) === "USOIL").length})`, full: `Crude Oil (${rows.filter((r) => getAsset(r.name, r.strategy) === "USOIL").length})` },
               ] as const
@@ -127,6 +129,16 @@ function Eas() {
                         {asset === "USOIL" && (
                           <span className="num rounded-xs border border-emerald-500/40 bg-emerald-500/10 px-1 py-0.2 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
                             USOIL
+                          </span>
+                        )}
+                        {asset === "GBPUSD" && (
+                          <span className="num rounded-xs border border-sky-500/40 bg-sky-500/10 px-1 py-0.2 text-[9px] font-semibold text-sky-600 dark:text-sky-400">
+                            GBPUSD
+                          </span>
+                        )}
+                        {asset === "USDJPY" && (
+                          <span className="num rounded-xs border border-pink-500/40 bg-pink-500/10 px-1 py-0.2 text-[9px] font-semibold text-pink-600 dark:text-pink-400">
+                            USDJPY
                           </span>
                         )}
                       </div>
