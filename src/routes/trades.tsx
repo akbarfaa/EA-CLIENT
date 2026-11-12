@@ -42,6 +42,12 @@ function formatEAName(raw: string) {
   if (clean.startsWith("EA01_USOIL")) return { code: "EA01-OIL", label: "Asian Box London", color: "text-cyan-400" };
   if (clean.startsWith("EA02_USOIL")) return { code: "EA02-OIL", label: "VWAP Pullback", color: "text-cyan-400" };
   if (clean.startsWith("EA03_USOIL")) return { code: "EA03-OIL", label: "Donchian Expansion", color: "text-cyan-400" };
+  if (clean.startsWith("EA01_GBPUSD")) return { code: "EA01-GBP", label: "VWAP Pullback", color: "text-sky-400" };
+  if (clean.startsWith("EA02_GBPUSD")) return { code: "EA02-GBP", label: "Sweep & Reclaim", color: "text-sky-400" };
+  if (clean.startsWith("EA03_GBPUSD")) return { code: "EA03-GBP", label: "Institutional FVG", color: "text-sky-400" };
+  if (clean.startsWith("EA01_USDJPY")) return { code: "EA01-JPY", label: "VWAP Pullback", color: "text-pink-400" };
+  if (clean.startsWith("EA02_USDJPY")) return { code: "EA02-JPY", label: "Sweep & Reclaim", color: "text-pink-400" };
+  if (clean.startsWith("EA03_USDJPY")) return { code: "EA03-JPY", label: "Institutional FVG", color: "text-pink-400" };
   if (clean.startsWith("EA_NEWS_TICKSPEED")) return { code: "NEWS-01", label: "Tick Speed Spike", color: "text-purple-400" };
   if (clean.startsWith("EA_NEWS_SPIKEHUNTER")) return { code: "NEWS-02", label: "Spike Hunter", color: "text-purple-400" };
   if (clean.startsWith("EA01")) return { code: "EA01", label: "Trend Pullback VWAP", color: "text-emerald-400" };
@@ -74,6 +80,20 @@ function SymbolBadge({ symbol }: { symbol?: string | undefined }) {
     return (
       <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/25">
         USOIL
+      </span>
+    );
+  }
+  if (s.includes("GBPUSD")) {
+    return (
+      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/25">
+        GBPUSD
+      </span>
+    );
+  }
+  if (s.includes("USDJPY")) {
+    return (
+      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider bg-pink-500/10 text-pink-400 border border-pink-500/25">
+        USDJPY
       </span>
     );
   }
@@ -177,7 +197,7 @@ function Trades() {
         const fEa = f.ea.toUpperCase();
         const eaMatch =
           ["EA01", "EA02", "EA03"].includes(fEa)
-            ? (tEa === fEa || (tEa.startsWith(fEa + "_") && !tEa.includes("_BTC") && !tEa.includes("_USOIL")))
+            ? (tEa === fEa || (tEa.startsWith(fEa + "_") && !tEa.includes("_BTC") && !tEa.includes("_USOIL") && !tEa.includes("_GBPUSD") && !tEa.includes("_USDJPY")))
             : (tEa === fEa || tEa.startsWith(fEa + "_") || tEa.includes(fEa));
         if (!eaMatch) return false;
       }
@@ -323,6 +343,8 @@ function Trades() {
 
         {sel("symbol", "Pair", [
           { value: "XAUUSD", label: "XAUUSD (Gold)" },
+          { value: "GBPUSD", label: "GBPUSD (Pound)" },
+          { value: "USDJPY", label: "USDJPY (Yen)" },
           { value: "BTCUSD", label: "BTCUSD (Bitcoin)" },
           { value: "USOIL", label: "USOIL (Oil)" },
         ])}
@@ -338,6 +360,12 @@ function Trades() {
           { value: "EA07", label: "EA07 (Order Block OTE)" },
           { value: "EA_NEWS_TICKSPEED", label: "NEWS TickSpeed" },
           { value: "EA_NEWS_SPIKEHUNTER", label: "NEWS SpikeHunter" },
+          { value: "EA01_GBPUSD", label: "EA01 GBPUSD (VWAP Pullback)" },
+          { value: "EA02_GBPUSD", label: "EA02 GBPUSD (Liquidity Sweep)" },
+          { value: "EA03_GBPUSD", label: "EA03 GBPUSD (Institutional FVG)" },
+          { value: "EA01_USDJPY", label: "EA01 USDJPY (VWAP Pullback)" },
+          { value: "EA02_USDJPY", label: "EA02 USDJPY (Liquidity Sweep)" },
+          { value: "EA03_USDJPY", label: "EA03 USDJPY (Institutional FVG)" },
           { value: "EA01_BTC", label: "EA01 BTC (Squeeze)" },
           { value: "EA02_BTC", label: "EA02 BTC (Supertrend)" },
           { value: "EA03_BTC", label: "EA03 BTC (Sweep)" },

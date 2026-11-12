@@ -1,13 +1,17 @@
 export const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER"];
 export const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
 export const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
+export const GBPUSD_EAS = ["EA01_GBPUSD", "EA02_GBPUSD", "EA03_GBPUSD"];
+export const USDJPY_EAS = ["EA01_USDJPY", "EA02_USDJPY", "EA03_USDJPY"];
 
-export type AssetType = "XAU" | "BTC" | "USOIL";
+export type AssetType = "XAU" | "BTC" | "USOIL" | "GBPUSD" | "USDJPY";
 
 export const getAsset = (name: string = "", strategy: string = ""): AssetType => {
   const str = (name + " " + strategy).toUpperCase();
   if (str.includes("BTC")) return "BTC";
   if (str.includes("USOIL") || str.includes("OIL") || str.includes("CRUDE")) return "USOIL";
+  if (str.includes("GBPUSD")) return "GBPUSD";
+  if (str.includes("USDJPY")) return "USDJPY";
   return "XAU";
 };
 
