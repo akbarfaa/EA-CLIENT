@@ -19,7 +19,7 @@ type Summary = ReturnType<typeof demo.summary>;
 type Eq = ReturnType<typeof demo.equity>;
 type Ev = ReturnType<typeof demo.events>[number];
 
-const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER", "EA10"];
+const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA02OLD", "EA03", "EA04", "EA05", "EA06", "EA07", "EA07OLD", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER", "EA10"];
 const GBP_EAS = ["EA01_GBPUSD", "EA02_GBPUSD", "EA03_GBPUSD"];
 const JPY_EAS = ["EA01_USDJPY", "EA02_USDJPY", "EA03_USDJPY"];
 const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
@@ -97,8 +97,8 @@ function Overview() {
             <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">
               {(
                 [
-                  { id: "ALL", label: "All (23)", full: "All Assets (23)" },
-                  { id: "XAU", label: "Gold (11)", full: "Gold (11)" },
+                  { id: "ALL", label: "All (25)", full: "All Assets (25)" },
+                  { id: "XAU", label: "Gold (13)", full: "Gold (13)" },
                   { id: "GBPUSD", label: "GBP (3)", full: "GBPUSD (3)" },
                   { id: "USDJPY", label: "JPY (3)", full: "USDJPY (3)" },
                   { id: "BTC", label: "BTC (3)", full: "Bitcoin (3)" },

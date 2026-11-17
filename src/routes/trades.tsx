@@ -36,6 +36,8 @@ interface FilterState {
 function formatEAName(raw: string) {
   const clean = (raw || "UNKNOWN").trim();
   if (clean.startsWith("EA02V2")) return { code: "EA02V2", label: "Sweep Reclaim V2", color: "text-amber-400" };
+  if (clean.startsWith("EA02OLD")) return { code: "EA02OLD", label: "Sweep Reclaim (16 Oct)", color: "text-blue-300" };
+  if (clean.startsWith("EA07OLD")) return { code: "EA07OLD", label: "Order Block (v1 Classic)", color: "text-teal-300" };
   if (clean.startsWith("EA01_BTC")) return { code: "EA01-BTC", label: "Squeeze Breakout", color: "text-orange-400" };
   if (clean.startsWith("EA02_BTC")) return { code: "EA02-BTC", label: "Supertrend Adaptive", color: "text-orange-400" };
   if (clean.startsWith("EA03_BTC")) return { code: "EA03-BTC", label: "Sweep & Reclaim", color: "text-orange-400" };
@@ -197,8 +199,8 @@ function Trades() {
         const tEa = t.ea.toUpperCase();
         const fEa = f.ea.toUpperCase();
         const eaMatch =
-          ["EA01", "EA02", "EA03"].includes(fEa)
-            ? (tEa === fEa || (tEa.startsWith(fEa + "_") && !tEa.includes("_BTC") && !tEa.includes("_USOIL") && !tEa.includes("_GBPUSD") && !tEa.includes("_USDJPY")))
+          ["EA01", "EA02", "EA03", "EA07"].includes(fEa)
+            ? (tEa === fEa || (tEa.startsWith(fEa + "_") && !tEa.includes("_BTC") && !tEa.includes("_USOIL") && !tEa.includes("_GBPUSD") && !tEa.includes("_USDJPY") && !tEa.includes("_OLD")))
             : (tEa === fEa || tEa.startsWith(fEa + "_") || tEa.includes(fEa));
         if (!eaMatch) return false;
       }
@@ -354,11 +356,13 @@ function Trades() {
           { value: "EA01", label: "EA01 (VWAP Pullback)" },
           { value: "EA02", label: "EA02 (Liquidity Sweep)" },
           { value: "EA02V2", label: "EA02V2 (Sweep Retrace)" },
+          { value: "EA02OLD", label: "EA02OLD (16 Oct Classic)" },
           { value: "EA03", label: "EA03 (Vol Expansion)" },
           { value: "EA04", label: "EA04 (Institutional FVG)" },
           { value: "EA05", label: "EA05 (London Breakout)" },
           { value: "EA06", label: "EA06 (Asian Mean Rev)" },
           { value: "EA07", label: "EA07 (Order Block OTE)" },
+          { value: "EA07OLD", label: "EA07OLD (v1 Classic)" },
           { value: "EA_NEWS_TICKSPEED", label: "NEWS TickSpeed" },
           { value: "EA_NEWS_SPIKEHUNTER", label: "NEWS SpikeHunter" },
           { value: "EA10", label: "EA10 (SNR DBD/RBR Limit)" },

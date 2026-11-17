@@ -1,4 +1,4 @@
-export const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER", "EA10"];
+export const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA02OLD", "EA03", "EA04", "EA05", "EA06", "EA07", "EA07OLD", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER", "EA10"];
 export const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
 export const OIL_EAS = ["EA01_USOIL", "EA02_USOIL", "EA03_USOIL"];
 export const GBPUSD_EAS = ["EA01_GBPUSD", "EA02_GBPUSD", "EA03_GBPUSD"];
@@ -16,12 +16,14 @@ export const getAsset = (name: string = "", strategy: string = ""): AssetType =>
 };
 
 export const getEaCode = (id: string, name: string = ""): string => {
-  const nameMatch = name.match(/^(EA\d+(?:V\d+)?)/i);
+  const nameMatch = name.match(/^(EA\d+(?:V\d+|OLD)?)/i);
   const matchedName = nameMatch?.[1];
   if (matchedName) return matchedName.toUpperCase();
 
   const idUpper = id.toUpperCase();
   if (idUpper.startsWith("EA02V2")) return "EA02V2";
+  if (idUpper.startsWith("EA02OLD")) return "EA02OLD";
+  if (idUpper.startsWith("EA07OLD")) return "EA07OLD";
   if (idUpper.includes("TICKSPEED")) return "EA08";
   if (idUpper.includes("SPIKEHUNTER")) return "EA09";
   const numMatch = idUpper.match(/EA(\d+)/i);

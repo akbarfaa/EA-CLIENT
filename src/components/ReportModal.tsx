@@ -392,7 +392,7 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
                     <div>Akun: <span className="text-white font-semibold">{activeAccMeta?.name || (s ? s.accountId : "Exness Real")}</span> ({s ? s.currency : "USD"})</div>
                     <div>Broker: <span className="text-white">Exness Technologies Ltd</span></div>
                     <div>Dibuat: <span className="text-amber-400 font-semibold">{reportDateStr} · {reportTimeStr}</span></div>
-                    <div>Filter: <span className="text-white font-semibold uppercase">{filterAsset === "ALL" ? "All Assets (23 EAs)" : `${filterAsset} Suite`}</span></div>
+                    <div>Filter: <span className="text-white font-semibold uppercase">{filterAsset === "ALL" ? "All Assets (25 EAs)" : `${filterAsset} Suite`}</span></div>
                   </div>
                 </div>
 
@@ -405,7 +405,7 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
                         <span className="font-bold text-xs text-white">XAUUSD Suite</span>
                       </div>
                       <span className="font-mono text-[9px] font-semibold text-amber-400 bg-amber-500/10 px-1 rounded border border-amber-500/30">
-                        11 EAs · M5
+                        13 EAs · M5
                       </span>
                     </div>
                     <div className="text-[10px] text-gray-400 mt-1">Spot Gold · Exness Cent/Standard</div>
