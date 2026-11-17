@@ -4,7 +4,7 @@ import { toJpeg } from "html-to-image";
 import { Download, Printer, X, FileText, CheckCircle2, ShieldCheck, TrendingUp, Layers, ChevronRight, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useApi } from "@/lib/api";
+import { useApi, useAccounts } from "@/lib/api";
 import { demo } from "@/lib/demo";
 import { fmt, pct, signCls } from "@/components/kit";
 import { cn } from "@/lib/utils";
@@ -56,12 +56,14 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
 
   // Data queries
   const summaryQ = useApi<Summary>("/accounts/default/summary", "summary", 10_000);
+  const accountsQ = useAccounts(15_000);
   const easQ = useApi<EaItem[]>("/eas", "eas", 10_000);
   const positionsQ = useApi<PositionItem[]>("/accounts/default/positions", "positions", 10_000);
   const eventsQ = useApi<TelemetryEventItem[]>("/telemetry/events?limit=80", "events", 10_000);
   const tradesQ = useApi<TradeItem[]>("/trades?pageSize=15", "trades", 10_000);
 
   const s = summaryQ.data;
+  const activeAccMeta = accountsQ.data?.find((a) => a.id === s?.accountId);
   const rawEas = easQ.data ?? [];
   const rawTrades = tradesQ.data ?? [];
 
@@ -387,10 +389,10 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
                   </div>
 
                   <div className="text-right text-[10px] font-mono text-gray-400 space-y-0.5">
-                    <div>Akun: <span className="text-white font-semibold">{s ? s.accountId : "25001923"}</span> ({s ? s.currency : "USD"})</div>
+                    <div>Akun: <span className="text-white font-semibold">{activeAccMeta?.name || (s ? s.accountId : "Exness Real")}</span> ({s ? s.currency : "USD"})</div>
                     <div>Broker: <span className="text-white">Exness Technologies Ltd</span></div>
                     <div>Dibuat: <span className="text-amber-400 font-semibold">{reportDateStr} · {reportTimeStr}</span></div>
-                    <div>Filter: <span className="text-white font-semibold uppercase">{filterAsset === "ALL" ? "All Assets (14 EAs)" : `${filterAsset} Suite`}</span></div>
+                    <div>Filter: <span className="text-white font-semibold uppercase">{filterAsset === "ALL" ? "All Assets (23 EAs)" : `${filterAsset} Suite`}</span></div>
                   </div>
                 </div>
 
@@ -403,7 +405,7 @@ export function ReportModal({ open, onOpenChange, initialAsset = "ALL" }: Report
                         <span className="font-bold text-xs text-white">XAUUSD Suite</span>
                       </div>
                       <span className="font-mono text-[9px] font-semibold text-amber-400 bg-amber-500/10 px-1 rounded border border-amber-500/30">
-                        8 EAs · M5
+                        11 EAs · M5
                       </span>
                     </div>
                     <div className="text-[10px] text-gray-400 mt-1">Spot Gold · Exness Cent/Standard</div>

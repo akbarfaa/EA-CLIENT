@@ -133,4 +133,32 @@ export function useApi<T>(path: string, demoKey: keyof typeof demo, refetchMs?: 
   });
 }
 
+export interface AccountInfo {
+  id: string;
+  name: string;
+  type: string;
+  currency: string;
+  balance: number;
+  equity: number;
+  floating: number;
+  updated_at?: string | null;
+}
+
+export function useAccounts(refetchMs = 15_000) {
+  return useQuery<AccountInfo[]>({
+    queryKey: ["api", "/accounts", getSettings().demo],
+    queryFn: async ({ signal }) =>
+      getSettings().demo
+        ? [
+            { id: "real", name: "Exness Real (Demo Sim)", type: "real", currency: "USD", balance: 100, equity: 100, floating: 0 },
+            { id: "demo", name: "Exness Demo (Demo Sim)", type: "demo", currency: "USD", balance: 10482.36, equity: 10417.9, floating: -64.46 },
+          ]
+        : api<AccountInfo[]>("/accounts", { signal }),
+    refetchInterval: refetchMs,
+    retry: 1,
+    staleTime: 10_000,
+    gcTime: 60_000,
+  });
+}
+
 export const isDemo = () => getSettings().demo;

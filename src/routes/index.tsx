@@ -19,7 +19,7 @@ type Summary = ReturnType<typeof demo.summary>;
 type Eq = ReturnType<typeof demo.equity>;
 type Ev = ReturnType<typeof demo.events>[number];
 
-const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER"];
+const XAU_EAS = ["EA01", "EA02", "EA02V2", "EA03", "EA04", "EA05", "EA06", "EA07", "EA_NEWS_TICKSPEED", "EA_NEWS_SPIKEHUNTER", "EA10"];
 const GBP_EAS = ["EA01_GBPUSD", "EA02_GBPUSD", "EA03_GBPUSD"];
 const JPY_EAS = ["EA01_USDJPY", "EA02_USDJPY", "EA03_USDJPY"];
 const BTC_EAS = ["EA01_BTC", "EA02_BTC", "EA03_BTC"];
@@ -73,10 +73,10 @@ function Overview() {
                 : "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
             )}
           >
-            {isReal ? "EXNESS REAL (412178700)" : "EXNESS DEMO (414427803)"}
+            {isReal ? "EXNESS REAL" : "EXNESS DEMO"}
           </span>
           <span className="text-muted-foreground hidden sm:inline">
-            {isReal ? "Akun Riil $100 · Live Execution" : "Akun Sandbox Forward Testing"}
+            {isReal ? "Akun Riil · Live Execution" : "Akun Sandbox Forward Testing"}
           </span>
         </div>
         <div className="flex items-center gap-3 text-muted-foreground text-[11px]">
@@ -91,14 +91,14 @@ function Overview() {
 
       <PageHeader
         title="Overview"
-        sub={s ? `${isReal ? "Exness Real (412178700)" : "Exness Demo (414427803)"} · Portfolio Balance & Equity` : "Multi-asset algorithmic portfolio"}
+        sub={s ? `${isReal ? "Exness Real" : "Exness Demo"} · Portfolio Balance & Equity` : "Multi-asset algorithmic portfolio"}
         right={
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center rounded-sm border bg-card p-0.5 text-xs shadow-xs max-w-full overflow-x-auto no-scrollbar">
               {(
                 [
-                  { id: "ALL", label: "All (22)", full: "All Assets (22)" },
-                  { id: "XAU", label: "Gold (10)", full: "Gold (10)" },
+                  { id: "ALL", label: "All (23)", full: "All Assets (23)" },
+                  { id: "XAU", label: "Gold (11)", full: "Gold (11)" },
                   { id: "GBPUSD", label: "GBP (3)", full: "GBPUSD (3)" },
                   { id: "USDJPY", label: "JPY (3)", full: "USDJPY (3)" },
                   { id: "BTC", label: "BTC (3)", full: "Bitcoin (3)" },

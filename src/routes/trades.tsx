@@ -57,6 +57,7 @@ function formatEAName(raw: string) {
   if (clean.startsWith("EA05")) return { code: "EA05", label: "London Breakout", color: "text-rose-400" };
   if (clean.startsWith("EA06")) return { code: "EA06", label: "Asian Mean Reversion", color: "text-amber-400" };
   if (clean.startsWith("EA07")) return { code: "EA07", label: "Order Block OTE", color: "text-teal-400" };
+  if (clean.startsWith("EA10")) return { code: "EA10", label: "SNR DBD/RBR Limit", color: "text-amber-400" };
   return { code: clean.slice(0, 8), label: clean.slice(8).replace(/^_+/, "") || "Strategy", color: "text-muted-foreground" };
 }
 
@@ -360,6 +361,7 @@ function Trades() {
           { value: "EA07", label: "EA07 (Order Block OTE)" },
           { value: "EA_NEWS_TICKSPEED", label: "NEWS TickSpeed" },
           { value: "EA_NEWS_SPIKEHUNTER", label: "NEWS SpikeHunter" },
+          { value: "EA10", label: "EA10 (SNR DBD/RBR Limit)" },
           { value: "EA01_GBPUSD", label: "EA01 GBPUSD (VWAP Pullback)" },
           { value: "EA02_GBPUSD", label: "EA02 GBPUSD (Liquidity Sweep)" },
           { value: "EA03_GBPUSD", label: "EA03 GBPUSD (Institutional FVG)" },
