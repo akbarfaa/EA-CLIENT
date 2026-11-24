@@ -35,23 +35,23 @@ interface FilterState {
 
 function formatEAName(raw: string) {
   const clean = (raw || "UNKNOWN").trim();
-  if (clean.startsWith("EA02V2")) return { code: "EA02V2", label: "Sweep Reclaim V2", color: "text-amber-400" };
-  if (clean.startsWith("EA02OLD")) return { code: "EA02OLD", label: "Sweep Reclaim (16 Oct)", color: "text-blue-300" };
-  if (clean.startsWith("EA07OLD")) return { code: "EA07OLD", label: "Order Block (v1 Classic)", color: "text-teal-300" };
-  if (clean.startsWith("EA01_BTC")) return { code: "EA01-BTC", label: "Squeeze Breakout", color: "text-orange-400" };
-  if (clean.startsWith("EA02_BTC")) return { code: "EA02-BTC", label: "Supertrend Adaptive", color: "text-orange-400" };
-  if (clean.startsWith("EA03_BTC")) return { code: "EA03-BTC", label: "Sweep & Reclaim", color: "text-orange-400" };
-  if (clean.startsWith("EA01_USOIL")) return { code: "EA01-OIL", label: "Asian Box London", color: "text-cyan-400" };
-  if (clean.startsWith("EA02_USOIL")) return { code: "EA02-OIL", label: "VWAP Pullback", color: "text-cyan-400" };
-  if (clean.startsWith("EA03_USOIL")) return { code: "EA03-OIL", label: "Donchian Expansion", color: "text-cyan-400" };
-  if (clean.startsWith("EA01_GBPUSD")) return { code: "EA01-GBP", label: "VWAP Pullback", color: "text-sky-400" };
-  if (clean.startsWith("EA02_GBPUSD")) return { code: "EA02-GBP", label: "Sweep & Reclaim", color: "text-sky-400" };
-  if (clean.startsWith("EA03_GBPUSD")) return { code: "EA03-GBP", label: "Institutional FVG", color: "text-sky-400" };
-  if (clean.startsWith("EA01_USDJPY")) return { code: "EA01-JPY", label: "VWAP Pullback", color: "text-pink-400" };
-  if (clean.startsWith("EA02_USDJPY")) return { code: "EA02-JPY", label: "Sweep & Reclaim", color: "text-pink-400" };
-  if (clean.startsWith("EA03_USDJPY")) return { code: "EA03-JPY", label: "Institutional FVG", color: "text-pink-400" };
-  if (clean.startsWith("EA_NEWS_TICKSPEED")) return { code: "NEWS-01", label: "Tick Speed Spike", color: "text-purple-400" };
-  if (clean.startsWith("EA_NEWS_SPIKEHUNTER")) return { code: "NEWS-02", label: "Spike Hunter", color: "text-purple-400" };
+  if (clean.startsWith("EA02V2") || clean.includes("EA02V2")) return { code: "EA02V2", label: "Sweep Reclaim V2", color: "text-amber-400" };
+  if (clean.startsWith("EA02OLD") || clean.includes("EA02OLD")) return { code: "EA02OLD", label: "Sweep Reclaim (16 Oct)", color: "text-blue-300" };
+  if (clean.startsWith("EA07OLD") || clean.includes("EA07OLD")) return { code: "EA07OLD", label: "Order Block (v1 Classic)", color: "text-teal-300" };
+  if (clean.startsWith("EA01_BTC") || (clean.startsWith("EA01") && clean.includes("BTC"))) return { code: "EA01-BTC", label: "Squeeze Breakout", color: "text-orange-400" };
+  if (clean.startsWith("EA02_BTC") || (clean.startsWith("EA02") && clean.includes("BTC"))) return { code: "EA02-BTC", label: "Supertrend Adaptive", color: "text-orange-400" };
+  if (clean.startsWith("EA03_BTC") || (clean.startsWith("EA03") && clean.includes("BTC"))) return { code: "EA03-BTC", label: "Sweep & Reclaim", color: "text-orange-400" };
+  if (clean.startsWith("EA01_USOIL") || (clean.startsWith("EA01") && (clean.includes("USOIL") || clean.includes("OIL")))) return { code: "EA01-OIL", label: "Asian Box London", color: "text-cyan-400" };
+  if (clean.startsWith("EA02_USOIL") || (clean.startsWith("EA02") && (clean.includes("USOIL") || clean.includes("OIL")))) return { code: "EA02-OIL", label: "VWAP Pullback", color: "text-cyan-400" };
+  if (clean.startsWith("EA03_USOIL") || (clean.startsWith("EA03") && (clean.includes("USOIL") || clean.includes("OIL")))) return { code: "EA03-OIL", label: "Donchian Expansion", color: "text-cyan-400" };
+  if (clean.startsWith("EA01_GBPUSD") || (clean.startsWith("EA01") && clean.includes("GBPUSD"))) return { code: "EA01-GBP", label: "VWAP Pullback", color: "text-sky-400" };
+  if (clean.startsWith("EA02_GBPUSD") || (clean.startsWith("EA02") && clean.includes("GBPUSD"))) return { code: "EA02-GBP", label: "Sweep & Reclaim", color: "text-sky-400" };
+  if (clean.startsWith("EA03_GBPUSD") || (clean.startsWith("EA03") && clean.includes("GBPUSD"))) return { code: "EA03-GBP", label: "Institutional FVG", color: "text-sky-400" };
+  if (clean.startsWith("EA01_USDJPY") || (clean.startsWith("EA01") && clean.includes("USDJPY"))) return { code: "EA01-JPY", label: "VWAP Pullback", color: "text-pink-400" };
+  if (clean.startsWith("EA02_USDJPY") || (clean.startsWith("EA02") && clean.includes("USDJPY"))) return { code: "EA02-JPY", label: "Sweep & Reclaim", color: "text-pink-400" };
+  if (clean.startsWith("EA03_USDJPY") || (clean.startsWith("EA03") && clean.includes("USDJPY"))) return { code: "EA03-JPY", label: "Institutional FVG", color: "text-pink-400" };
+  if (clean.startsWith("EA_NEWS_TICKSPEED") || clean.includes("TICKSPEED")) return { code: "NEWS-01", label: "Tick Speed Spike", color: "text-purple-400" };
+  if (clean.startsWith("EA_NEWS_SPIKEHUNTER") || clean.includes("SPIKEHUNTER")) return { code: "NEWS-02", label: "Spike Hunter", color: "text-purple-400" };
   if (clean.startsWith("EA01")) return { code: "EA01", label: "Trend Pullback VWAP", color: "text-emerald-400" };
   if (clean.startsWith("EA02")) return { code: "EA02", label: "Liquidity Sweep", color: "text-blue-400" };
   if (clean.startsWith("EA03")) return { code: "EA03", label: "Volatility Breakout", color: "text-indigo-400" };
@@ -59,7 +59,7 @@ function formatEAName(raw: string) {
   if (clean.startsWith("EA05")) return { code: "EA05", label: "London Breakout", color: "text-rose-400" };
   if (clean.startsWith("EA06")) return { code: "EA06", label: "Asian Mean Reversion", color: "text-amber-400" };
   if (clean.startsWith("EA07")) return { code: "EA07", label: "Order Block OTE", color: "text-teal-400" };
-  if (clean.startsWith("EA10")) return { code: "EA10", label: "SNR DBD/RBR Limit", color: "text-amber-400" };
+  if (clean.startsWith("EA10") || clean.includes("EA10")) return { code: "EA10", label: "SNR DBD/RBR Limit", color: "text-amber-400" };
   return { code: clean.slice(0, 8), label: clean.slice(8).replace(/^_+/, "") || "Strategy", color: "text-muted-foreground" };
 }
 
@@ -198,10 +198,59 @@ function Trades() {
       if (f.ea) {
         const tEa = t.ea.toUpperCase();
         const fEa = f.ea.toUpperCase();
-        const eaMatch =
-          ["EA01", "EA02", "EA03", "EA07"].includes(fEa)
-            ? (tEa === fEa || (tEa.startsWith(fEa + "_") && !tEa.includes("_BTC") && !tEa.includes("_USOIL") && !tEa.includes("_GBPUSD") && !tEa.includes("_USDJPY") && !tEa.includes("_OLD")))
-            : (tEa === fEa || tEa.startsWith(fEa + "_") || tEa.includes(fEa));
+        const sym = (t.symbol || "").toUpperCase();
+        const fullKey = `${tEa}_${sym}`;
+
+        let eaMatch = false;
+        if (fEa === "EA01_USDJPY") {
+          eaMatch = t.magic === 20280001 || tEa === "EA01_USDJPY" || (tEa.startsWith("EA01") && fullKey.includes("USDJPY"));
+        } else if (fEa === "EA02_USDJPY") {
+          eaMatch = t.magic === 20280002 || tEa === "EA02_USDJPY" || (tEa.startsWith("EA02") && fullKey.includes("USDJPY"));
+        } else if (fEa === "EA03_USDJPY") {
+          eaMatch = t.magic === 20280003 || tEa === "EA03_USDJPY" || (tEa.startsWith("EA03") && fullKey.includes("USDJPY"));
+        } else if (fEa === "EA01_GBPUSD") {
+          eaMatch = t.magic === 20270001 || tEa === "EA01_GBPUSD" || (tEa.startsWith("EA01") && fullKey.includes("GBPUSD"));
+        } else if (fEa === "EA02_GBPUSD") {
+          eaMatch = t.magic === 20270002 || tEa === "EA02_GBPUSD" || (tEa.startsWith("EA02") && fullKey.includes("GBPUSD"));
+        } else if (fEa === "EA03_GBPUSD") {
+          eaMatch = t.magic === 20270003 || tEa === "EA03_GBPUSD" || (tEa.startsWith("EA03") && fullKey.includes("GBPUSD"));
+        } else if (fEa === "EA01_BTC") {
+          eaMatch = t.magic === 20250001 || tEa === "EA01_BTC" || (tEa.startsWith("EA01") && fullKey.includes("BTC"));
+        } else if (fEa === "EA02_BTC") {
+          eaMatch = t.magic === 20250002 || tEa === "EA02_BTC" || (tEa.startsWith("EA02") && fullKey.includes("BTC"));
+        } else if (fEa === "EA03_BTC") {
+          eaMatch = t.magic === 20250003 || tEa === "EA03_BTC" || (tEa.startsWith("EA03") && fullKey.includes("BTC"));
+        } else if (fEa === "EA01_USOIL") {
+          eaMatch = t.magic === 20260001 || tEa === "EA01_USOIL" || (tEa.startsWith("EA01") && (fullKey.includes("USOIL") || fullKey.includes("OIL")));
+        } else if (fEa === "EA02_USOIL") {
+          eaMatch = t.magic === 20260002 || tEa === "EA02_USOIL" || (tEa.startsWith("EA02") && (fullKey.includes("USOIL") || fullKey.includes("OIL")));
+        } else if (fEa === "EA03_USOIL") {
+          eaMatch = t.magic === 20260003 || tEa === "EA03_USOIL" || (tEa.startsWith("EA03") && (fullKey.includes("USOIL") || fullKey.includes("OIL")));
+        } else if (fEa === "EA02V2") {
+          eaMatch = t.magic === 20240008 || tEa === "EA02V2" || tEa.includes("V2");
+        } else if (fEa === "EA02OLD") {
+          eaMatch = t.magic === 20240012 || tEa.includes("EA02OLD");
+        } else if (fEa === "EA07OLD") {
+          eaMatch = t.magic === 20240013 || tEa.includes("EA07OLD");
+        } else if (fEa === "EA10") {
+          eaMatch = t.magic === 20240011 || tEa.includes("EA10");
+        } else if (fEa === "EA_NEWS_TICKSPEED") {
+          eaMatch = t.magic === 20240009 || tEa.includes("TICKSPEED");
+        } else if (fEa === "EA_NEWS_SPIKEHUNTER") {
+          eaMatch = t.magic === 20240010 || tEa.includes("SPIKEHUNTER");
+        } else if (["EA01", "EA02", "EA03", "EA07"].includes(fEa)) {
+          eaMatch =
+            (tEa === fEa || tEa.startsWith(fEa + "_")) &&
+            !fullKey.includes("BTC") &&
+            !fullKey.includes("USOIL") &&
+            !fullKey.includes("OIL") &&
+            !fullKey.includes("GBPUSD") &&
+            !fullKey.includes("USDJPY") &&
+            !fullKey.includes("OLD") &&
+            !fullKey.includes("V2");
+        } else {
+          eaMatch = tEa === fEa || tEa.startsWith(fEa + "_") || tEa.includes(fEa);
+        }
         if (!eaMatch) return false;
       }
 
@@ -453,8 +502,36 @@ function Trades() {
               <TableBody className="num text-xs">
                 {rows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={19} className="h-28 text-center text-muted-foreground">
-                      No trades found matching current filter criteria.
+                    <TableCell colSpan={19} className="h-32 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2 py-4 text-muted-foreground">
+                        <p className="text-sm">Tidak ada riwayat trade yang cocok dengan filter saat ini.</p>
+                        {effectiveAccount !== "all" && (
+                          <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+                            <span>Sedang memfilter akun <strong>{effectiveAccount.toUpperCase()}</strong>.</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setF((prev) => ({ ...prev, account: effectiveAccount === "real" ? "demo" : "real" }));
+                                setPage(0);
+                              }}
+                              className="font-medium text-primary hover:underline underline-offset-2"
+                            >
+                              Coba ganti ke {effectiveAccount === "real" ? "Demo Account" : "Real Account"} →
+                            </button>
+                            <span className="text-muted-foreground/50">|</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setF((prev) => ({ ...prev, account: "all" }));
+                                setPage(0);
+                              }}
+                              className="font-medium text-primary hover:underline underline-offset-2"
+                            >
+                              Tampilkan Semua Akun (All)
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
