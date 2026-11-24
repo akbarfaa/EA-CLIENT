@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useApi, useActiveAccount, type ActiveAccount } from "@/lib/api";
 import { demo } from "@/lib/demo";
 import { meta } from "@/lib/meta";
 import { PageHeader, Panel, QueryState, SourceBadge, fmt, signCls } from "@/components/kit";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownRight, ArrowUpRight, FilterX } from "lucide-react";
+import { ArrowDownRight, ArrowLeftRight, ArrowUpRight, ChevronLeft, ChevronRight, FilterX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/trades")({
@@ -136,6 +136,30 @@ function Trades() {
     search: "",
   });
   const [page, setPage] = useState(0);
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!tableContainerRef.current) return;
+    if ((e.target as HTMLElement).closest("button, a, select, input")) return;
+    setIsDragging(true);
+    setStartX(e.pageX - tableContainerRef.current.offsetLeft);
+    setScrollLeftState(tableContainerRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !tableContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - tableContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    tableContainerRef.current.scrollLeft = scrollLeftState - walk;
+  };
 
   useEffect(() => {
     setF((prev) => ({ ...prev, account: "auto" }));
@@ -465,11 +489,52 @@ function Trades() {
       </div>
 
       {/* Main Table */}
-      <Panel>
+      <Panel
+        title="Trade Records"
+        right={
+          <div className="flex items-center gap-1.5">
+            <span className="hidden sm:inline-flex text-[11px] text-muted-foreground items-center gap-1 mr-1">
+              <ArrowLeftRight className="size-3" /> Geser tabel:
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1"
+              onClick={() => tableContainerRef.current?.scrollBy({ left: -320, behavior: "smooth" })}
+              title="Scroll table left"
+            >
+              <ChevronLeft className="size-3.5" />
+              <span className="hidden xs:inline">Kiri</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1"
+              onClick={() => tableContainerRef.current?.scrollBy({ left: 320, behavior: "smooth" })}
+              title="Scroll table right"
+            >
+              <span className="hidden xs:inline">Kanan</span>
+              <ChevronRight className="size-3.5" />
+            </Button>
+          </div>
+        }
+      >
         <QueryState q={q} rows={8}>
-          <div className="max-h-[65vh] max-w-full overflow-auto touch-pan-x">
-            <Table className="min-w-[980px]">
-              <TableHeader className="sticky top-0 z-10 bg-card">
+          <div
+            ref={tableContainerRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            className={cn(
+              "relative w-full max-w-full overflow-x-auto overscroll-x-contain pb-2",
+              isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+            )}
+          >
+            <table className="w-full caption-bottom text-sm min-w-[1260px]">
+              <TableHeader className="bg-card">
                 <TableRow>
                   {[
                     "Ticket",
@@ -654,7 +719,7 @@ function Trades() {
                   })
                 )}
               </TableBody>
-            </Table>
+            </table>
           </div>
 
           {/* Pagination & Counter */}
